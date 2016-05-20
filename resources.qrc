@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/Histogram" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

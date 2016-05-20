@@ -1,0 +1,35 @@
+# This file contains metadata for your plugin. Since 
+# version 2.0 of QGIS this is the proper way to supply 
+# information about a plugin. The old method of 
+# embedding metadata in __init__.py will 
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.
+# Mandatory items:
+
+[general]
+name=Standard Deviational Ellipse
+qgisMinimumVersion=2.0
+description=Create a standard deviational ellipse for a point distribution
+about=The Standard Deviational Ellipse visualises the distribution of a point dataset. It implements the algorithms presented by Robert S. Yuill (1971).  There are no external library dependencies.  An attribute for weighting can be selected.
+version=1.0
+author=Håvard Tveite, NMBU
+email=havard.tveite@nmbu.no
+
+# End of mandatory metadata
+
+# Optional items:
+# Uncomment the following line and add your changelog:
+changelog=1.0
+    -- First public version
+# Tags are comma separated with spaces allowed
+tags=standard,deviational,ellipse,statistics,standard deviational ellipse
+homepage=http://arken.umb.no/~havatv/gis/qgisplugins/SDEllipse/
+tracker=https://github.com/havatv/qgisstandarddeviationalellipseplugin/issues
+repository=https://github.com/havatv/qgisstandarddeviationalellipsepluginq.git
+icon=icon.png
+# experimental flag
+experimental=False
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
