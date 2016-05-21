@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from math import sqrt, pow, sin, cos, atan
+from math import sqrt, pow, sin, cos, atan, pi
 from PyQt4 import QtCore
 from PyQt4.QtCore import QCoreApplication, QPyNullVariant
 from qgis.core import QGis
@@ -69,15 +69,15 @@ class Worker(QtCore.QObject):
                 self.error.emit(self.tr('No input layer defined'))
                 self.finished.emit(False, None)
                 return
-            # Prepare for the progress bar
-            self.processed = 0
-            self.percentage = 0
             self.feature_count = inputlayer.featureCount()
             # Check if the layer has features
             if self.feature_count == 0:
                 self.error.emit("No features in layer")
                 self.finished.emit(False, None)
                 return
+            # Prepare for the progress bar
+            self.processed = 0
+            self.percentage = 0
             self.increment = self.feature_count // 1000
             # Get the features (iterator)
             if (inputlayer.selectedFeatureCount() > 0 and
@@ -89,15 +89,15 @@ class Worker(QtCore.QObject):
             sumweight = 0.0
             sumx = 0.0
             sumy = 0.0
-            # Find the (weighted) centre
+            # Find the (weighted) centre (OK)
             for feat in features:
                 # Allow user abort
                 if self.abort is True:
                     break
-                # Work on the attribute
+                # Weighting?
                 if self.useWeight:
                     weight = feat[self.numericalattribute]
-                # Check if the value is meaningful
+                # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
                 if isinstance(weight, QPyNullVariant):
@@ -108,9 +108,14 @@ class Worker(QtCore.QObject):
                 sumy = sumy + geom.y()
                 sumweight = sumweight + theweight
                 self.calculate_progress()
+            if sumweight == 0.0:
+                self.error.emit(self.tr('Weights add to zero'))
+                self.finished.emit(False, None)
+                return
             self.meanx = sumx / sumweight
             self.meany = sumy / sumweight
-            self.status.emit('Meanx: ' + str(self.meanx) + ' Meany: ' + str(self.meany))
+            self.status.emit('Mean x: ' + str(self.meanx) + ' Mean y: ' + str(self.meany))
+            # Reset the progress bar
             self.processed = 0
             self.percentage = 0
             # Get the features (iterator)
@@ -124,32 +129,35 @@ class Worker(QtCore.QObject):
             xyw = 0.0
             x2w = 0.0
             y2w = 0.0
-            #sumweight = 0.0
             for feat in features:
                 # Allow user abort
                 if self.abort is True:
                     break
-                # Work on the attribute
+                # Weighting?
                 if self.useWeight:
                     weight = feat[self.numericalattribute]
-                # Check if the value is meaningful
+                # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
                 if isinstance(weight, QPyNullVariant):
                     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
-                xyw = xyw + (geom.x()-self.meanx) * (geom.y()-self.meany) * theweight
-                x2w = x2w + (geom.x()-self.meanx) * (geom.x()-self.meanx) * theweight
-                y2w = y2w + (geom.y()-self.meany) * (geom.y()-self.meany) * theweight
-                #sumweight = sumweight + theweight
+                xyw = xyw + (geom.x() - self.meanx) * (geom.y() - self.meany) * theweight
+                x2w = x2w + pow(geom.x() - self.meanx, 2) * theweight
+                y2w = y2w + pow(geom.y() - self.meany, 2) * theweight
                 self.calculate_progress()
-            self.status.emit('xyw: ' + str(xyw) + ' x2w: ' + str(x2w))
-            tantheta1 = - (x2w - y2w) / (2 * xyw) + sqrt(pow(x2w-y2w, 2) + 4 * pow(xyw, 2)) / (2 * xyw)
-            tantheta2 = - (x2w - y2w) / (2 * xyw) - sqrt(pow(x2w-y2w, 2) + 4 * pow(xyw, 2)) / (2 * xyw)
+            self.status.emit('xyw: ' + str(xyw) + ' x2w: ' + str(x2w) + ' y2w: ' + str(y2w))
+            if xyw == 0.0:
+                self.error.emit(self.tr('Weights add to zero or identical points'))
+                self.finished.emit(False, None)
+                return
+            tantheta1 = - (x2w - y2w) / (2 * xyw) + sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2)) / (2 * xyw)
+            tantheta2 = - (x2w - y2w) / (2 * xyw) - sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2)) / (2 * xyw)
             self.theta1 = atan(tantheta1)
             self.theta2 = atan(tantheta2)
-            self.status.emit('theta1: ' + str(self.theta1) + ' theta2: ' + str(self.theta2))
+            self.status.emit('theta1: ' + str(self.theta1) + ' theta2: ' + str(self.theta2) + ' diff/pi: ' + str((self.theta1-self.theta2)/pi))
+            # Reset the progress bar
             self.processed = 0
             self.percentage = 0
             # Get the features (iterator)
@@ -158,7 +166,7 @@ class Worker(QtCore.QObject):
                 features = inputlayer.selectedFeaturesIterator()
             else:
                 features = inputlayer.getFeatures()
-            # Find the SD
+            # Find the SD - trouble!
             angleterm1 = 0.0
             angleterm2 = 0.0
             sumweight = 0.0
@@ -169,7 +177,7 @@ class Worker(QtCore.QObject):
                 # Work on the attribute
                 if self.useWeight:
                     weight = feat[self.numericalattribute]
-                # Check if the value is meaningful
+                # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
                 if isinstance(weight, QPyNullVariant):
@@ -177,10 +185,10 @@ class Worker(QtCore.QObject):
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
                 angleterm1 = angleterm1 + pow(
-                                 (geom.y()-self.meany) * cos(self.theta1) +
+                                 (geom.y()-self.meany) * cos(self.theta1) -
                                  (geom.x()-self.meanx) * sin(self.theta1), 2) * theweight
                 angleterm2 = angleterm2 + pow(
-                                 (geom.y()-self.meany) * cos(self.theta2) +
+                                 (geom.y()-self.meany) * cos(self.theta2) -
                                  (geom.x()-self.meanx) * sin(self.theta2), 2) * theweight
                 sumweight = sumweight + theweight
                 self.calculate_progress()

@@ -23,11 +23,9 @@
 
 # User interface input components:
 #   histogramGraphicsView: The GraphicsView that contains the histogram
-#   binsSpinBox: Spinbox to set the number of bins
-#   minValueSpinBox: Spinbox to set the minimum value
-#   maxValueSpinBox: Spinbox to set the maximum value
 #   frequencyRangeSpinBox: Spinbox to set the frequency cutoff value
 #   selectedFeaturesCheckBox: Checkbox to determine if selection is to be used
+#   useWeightsCheckBox: Checkbox to determine if weights are to be used
 #   InputLayer: The input layer
 #   inputField: The field for which the histogram is to be computed
 
@@ -88,10 +86,6 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         cancelButton.clicked.connect(self.killWorker)
         closeButton.clicked.connect(self.reject)
         self.cumulative = False
-        #self.iface.legendInterface().itemAdded.connect(
-        #    self.layerlistchanged)
-        #self.iface.legendInterface().itemRemoved.connect(
-        #    self.layerlistchanged)
         inpIndexCh = self.InputLayer.currentIndexChanged['QString']
         inpIndexCh.connect(self.layerchanged)
         fieldIndexCh = self.inputField.currentIndexChanged['QString']
@@ -104,12 +98,10 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.worker = None
         self.inputlayerid = None
         self.layerlistchanging = False
-        #self.bins = 8
-        #self.binsSpinBox.setValue(self.bins)
         self.selectedFeaturesCheckBox.setChecked(True)
         self.useWeightsCheckBox.setChecked(False)
-        self.scene = QGraphicsScene(self)
-        self.histogramGraphicsView.setScene(self.scene)
+        #self.scene = QGraphicsScene(self)
+        #self.histogramGraphicsView.setScene(self.scene)
         self.result = None
 
     def startWorker(self):
@@ -123,20 +115,11 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             return
         if inputlayer.featureCount() == 0:
             self.showError(self.tr('No features in input layer'))
-            self.scene.clear()
+            #self.scene.clear()
             return
-        #self.binSize = self.binSizeSpinBox.value()
-        #self.bins = self.binsSpinBox.value()
-        #self.outputfilename = self.outputFile.text()
-        #self.minValue = self.minValueSpinBox.value()
-        #self.maxValue = self.maxValueSpinBox.value()
-        #self.maxValue = self.minValue + self.bins * self.binSize
-        #if (self.maxValue - self.minValue < 0):
-        #    self.showError(self.tr('Max value less than min value'))
-        #    return
         if (self.useWeightsCheckBox.isChecked() and self.inputField.count() == 0):
             self.showError(self.tr('Missing numerical field'))
-            self.scene.clear()
+            #self.scene.clear()
             return
         fieldindex = self.inputField.currentIndex()
         fieldname = self.inputField.itemData(fieldindex)
@@ -148,20 +131,6 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         worker = Worker(inputlayer,
                         self.selectedFeaturesCheckBox.isChecked(),
                         fieldname)
-        ## configure the QgsMessageBar
-        #msgBar = self.iface.messageBar().createMessage(self.tr('Joining'), '')
-        #self.aprogressBar = QProgressBar()
-        #self.aprogressBar.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        #acancelButton = QPushButton()
-        #acancelButton.setText(self.CANCEL)
-        #acancelButton.clicked.connect(self.killWorker)
-        #msgBar.layout().addWidget(self.aprogressBar)
-        #msgBar.layout().addWidget(acancelButton)
-        ## Has to be popped after the thread has finished (in
-        ## workerFinished).
-        #self.iface.messageBar().pushWidget(msgBar,
-        #                                   self.iface.messageBar().INFO)
-        #self.messageBar = msgBar
         # start the worker in a new thread
         thread = QThread(self)
         worker.moveToThread(thread)
@@ -192,9 +161,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         if ok and ret is not None:
             #self.showInfo("Histogram: " + str(ret))
             self.result = ret
-            # report the result
-            # As a CSV file:
-            # Draw the histogram
+            # Draw the ellipse
             self.drawHistogram()
         else:
             # notify the user that something went wrong
@@ -241,62 +208,24 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         QDialog.reject(self)
 
     def drawHistogram(self):
-        self.showInfo('Result: ' + str(self.result))
-        self.scene.clear()
-        viewprect = QRectF(self.histogramGraphicsView.viewport().rect())
-        self.histogramGraphicsView.setSceneRect(viewprect)
-        bottom = self.histogramGraphicsView.sceneRect().bottom()
-        top = self.histogramGraphicsView.sceneRect().top()
-        left = self.histogramGraphicsView.sceneRect().left()
-        right = self.histogramGraphicsView.sceneRect().right()
-        height = bottom - top - 1
-        width = right - left - 1
-        padding = 3
-        toppadding = 3
-        maxsd = max(self.result[4],self.result[5])
-        hline1 = QGraphicsLineItem(QLineF(width/2, height/2,
-                                          width/2 + self.result[4] / maxsd * width / 2.0 * cos(self.result[2]),
-                                          height/2 + self.result[4] / maxsd * width / 2.0 * sin(self.result[2])))
-        hlinepen = QPen(QColor(255, 0, 0))
-        #hlinepen.setStyle(Qt.DotLine)
-        #setDashPattern([5,5,5,5])
-        hline1.setPen(hlinepen)
-        self.scene.addItem(hline1)
-        hline2 = QGraphicsLineItem(QLineF(width/2, height/2,
-                                          width/2 + self.result[5] / maxsd * width / 2.0 * cos(self.result[3]),
-                                          height/2 + self.result[5] / maxsd * width / 2.0 * sin(self.result[3])))
-        hlinepen = QPen(QColor(0, 255, 0))
-        #hlinepen = QPen(QColor(153, 153, 153), 1, Qt.DashLine)
-        hlinepen.setStyle(Qt.DashLine)
-        #setDashPattern([5,5,5,5])
-        hline2.setPen(hlinepen)
-        self.scene.addItem(hline2)
-
-        a = self.result[4] / maxsd * width/2
-        b = self.result[5] / maxsd * width/2
-        theta1 = self.result[2]
-        theta2 = self.result[3]
-        step = pi / 100
-        t = 0.0
-        p1 = QPointF(width/2 + a*cos(0)*cos(theta1) -
-                         b*sin(0)*sin(theta1),
-                     height/2 + a*cos(0)*sin(theta1) +
-                         b*sin(0)*cos(theta1))
-        while t < 2 * pi:
-            t = t + step
-            p2 = QPointF(width/2 + a*cos(t)*cos(theta1) -
-                         b*sin(t)*sin(theta1),
-                         height/2 + a*cos(t)*sin(theta1) +
-                         b*sin(t)*cos(theta1))
-            segment = QGraphicsLineItem(QLineF(p1,p2))
-            linepen = QPen(QColor(0, 255, 0))
-            hlinepen.setStyle(Qt.DashLine)
-            segment.setPen(linepen)
-            self.scene.addItem(segment)
-            #self.showInfo('t: ' + str(t) + " Point: " + str(p1))
-            p1 = p2
-
-
+        #self.showInfo('Result: ' + str(self.result))
+        meanx = self.result[0] # OK
+        meany = self.result[1] # OK
+        angle1 = self.result[2]
+        angle2 = self.result[3]
+        SD1 = self.result[4]
+        SD2 = self.result[5]
+        # Find the major and minor axis
+        majoraxisangle = angle1
+        minoraxisangle = angle2
+        majorSD = SD2
+        minorSD = SD1
+        if SD2 < SD1:
+            majoraxisangle = angle2
+            minoraxisangle = angle1
+            majorSD = SD1
+            minorSD = SD2
+        self.showInfo('Major axis angle: ' + str(majoraxisangle) + ' Major axis length: ' + str(majorSD) + ' Minor axis length: ' + str(minorSD))
         # Create the memory layer for the ellipse
         layeruri = 'Polygon?'
         #layeruri = 'linestring?'
@@ -304,20 +233,15 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                     str(self.SDLayer.dataProvider().crs().authid()))
         memSDlayer = QgsVectorLayer(layeruri, self.SDLayer.name() + "_SDE", "memory")
         sdfeature = QgsFeature()
-        meanx = self.result[0] # OK
-        meany = self.result[1] # OK
-        theta1 = self.result[2] 
-        b = self.result[4]
-        a = self.result[5]
+        theta1 = majoraxisangle
         points = []
-        #t = pi / 4.0
+        step = 2 * pi / 100
         t = 0.0
         while t < 2 * pi:
-        #while t < 2 * pi + pi / 4.0:
-            p1 = QPointF(meanx + a*cos(t)*cos(theta1) -
-                         b*sin(t)*sin(theta1),
-                         meany + a*cos(t)*sin(theta1) +
-                         b*sin(t)*cos(theta1))
+            p1 = QPointF(meanx + majorSD*cos(t)*cos(majoraxisangle) -
+                         minorSD*sin(t)*sin(majoraxisangle),
+                         meany + majorSD*cos(t)*sin(majoraxisangle) +
+                         minorSD*sin(t)*cos(majoraxisangle))
             points.append(QgsPoint(p1))
             t = t + step
         sdfeature.setGeometry(QgsGeometry.fromPolygon([points]))
@@ -325,144 +249,11 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         memSDlayer.dataProvider().addFeatures([sdfeature])
         memSDlayer.updateExtents()
         QgsMapLayerRegistry.instance().addMapLayers([memSDlayer])
-
         return
-
-        if self.result is None:
-            return
-        # Label the histogram
-        minvaltext = QGraphicsTextItem(str(self.minValue))
-        minvaltextheight = minvaltext.boundingRect().height()
-        maxvaltext = QGraphicsTextItem(str(self.maxValue))
-        maxvaltextwidth = maxvaltext.boundingRect().width()
-
-        #self.showInfo(str(self.result))
-        # Which element should be used for the histogram
-        element = 1
-        # Find the maximum value for scaling
-        maxvalue = 0
-        for i in range(len(self.result)):
-            if self.cumulative:
-                maxvalue = maxvalue + self.result[i][element]
-            else:
-                if self.result[i][element] > maxvalue:
-                    maxvalue = self.result[i][element]
-        cutoffvalue = maxvalue
-        self.scene.clear()
-        if maxvalue == 0:
-            return
-        viewprect = QRectF(self.histogramGraphicsView.viewport().rect())
-        self.histogramGraphicsView.setSceneRect(viewprect)
-        bottom = self.histogramGraphicsView.sceneRect().bottom()
-        top = self.histogramGraphicsView.sceneRect().top()
-        left = self.histogramGraphicsView.sceneRect().left()
-        right = self.histogramGraphicsView.sceneRect().right()
-        height = bottom - top - 1
-        width = right - left - 1
-        padding = 3
-        toppadding = 3
-        bottompadding = minvaltextheight
-        # Determine the width of the left margin (depends on the y range)
-        clog = log(cutoffvalue, 10)
-        clogint = int(clog)
-        yincr = pow(10, clogint)
-        dummytext = QGraphicsTextItem(str(yincr))
-        # The left padding must accomodate the y labels
-        leftpadding = dummytext.boundingRect().width()
-        # Find the width of the maximium frequency label
-        maxfreqtext = QGraphicsTextItem(str(cutoffvalue))
-        maxfreqtextwidth = maxvaltext.boundingRect().width()
-        rightpadding = maxfreqtextwidth
-        width = width - (leftpadding + rightpadding)
-        height = height - (toppadding + bottompadding)
-        barwidth = width / self.bins
-        binsize = 0
-        # Create the histogram
-        for i in range(self.bins):
-            if self.cumulative:
-                binsize = binsize + self.result[i][element]
-            else:
-                binsize = self.result[i][element]
-            #barheight = height * self.result[i][element] / maxvalue
-            barheight = height * binsize / cutoffvalue
-            barrect = QGraphicsRectItem(QRectF(leftpadding + barwidth * i,
-                        height - barheight + toppadding, barwidth, barheight))
-            barbrush = QBrush(QColor(255, 153, 102))
-            barrect.setBrush(barbrush)
-            self.scene.addItem(barrect)
-        # Determine the increments for the horizontal lines
-        if (cutoffvalue // yincr <= 5 and yincr > 1):
-            yincr = yincr / 2
-            if (cutoffvalue // yincr < 5 and yincr > 10):
-                yincr = yincr / 2
-        # Draw horizontal lines with labels
-        yval = 0
-        while (yval <= cutoffvalue):
-            scval = height + toppadding - yval * height / cutoffvalue
-            hline = QGraphicsLineItem(QLineF(leftpadding - 3, scval,
-                                             width + (leftpadding), scval))
-            #hlinepen = QPen(QColor(153, 153, 153), 1, Qt.DashLine)
-            hlinepen = QPen(QColor(153, 153, 153))
-            hlinepen.setStyle(Qt.DotLine)
-            #setDashPattern([5,5,5,5])
-            hline.setPen(hlinepen)
-            self.scene.addItem(hline)
-            ylabtext = QGraphicsTextItem(str(int(yval)))
-            ylabtextheight = ylabtext.boundingRect().height()
-            ylabtextwidth = ylabtext.boundingRect().width()
-            ylabtext.setPos(leftpadding - ylabtextwidth,
-                            scval - ylabtextheight / 2)
-            if (scval - ylabtextheight / 2 > 0):
-                self.scene.addItem(ylabtext)
-            yval = yval + yincr
-        # Draw frame
-        vline1 = QGraphicsLineItem(QLineF(leftpadding - 1, toppadding,
-                                 leftpadding - 1, toppadding + height))
-        vlinepen = QPen(QColor(153, 153, 153))
-        vline1.setPen(vlinepen)
-        self.scene.addItem(vline1)
-        vline2 = QGraphicsLineItem(QLineF(leftpadding + width + 1, toppadding,
-                               leftpadding + width + 1, toppadding + height))
-        vline2.setPen(vlinepen)
-        self.scene.addItem(vline2)
-
-        minvaltextwidth = minvaltext.boundingRect().width()
-        minvaltext.setPos(leftpadding - minvaltextwidth / 2,
-                          height + toppadding + bottompadding
-                          - minvaltextheight)
-        self.scene.addItem(minvaltext)
-        maxvaltext.setPos(leftpadding + width - maxvaltextwidth / 2,
-                          height + toppadding + bottompadding
-                          - minvaltextheight)
-        self.scene.addItem(maxvaltext)
-        maxfreqtext.setPos(leftpadding + width, 0)
-        self.scene.addItem(maxfreqtext)
-
-    #def layerlistchanged(self):
-    #    self.layerlistchanging = True
-    #    # Repopulate the input and join layer combo boxes
-    #    # Save the currently selected input layer
-    #    inputlayerid = self.inputlayerid
-    #    self.InputLayer.clear()
-    #    # We are only interested in line and polygon layers
-    #    for alayer in self.iface.legendInterface().layers():
-    #        if alayer.type() == QgsMapLayer.VectorLayer:
-    #            if (alayer.geometryType() == QGis.Line or
-    #                alayer.geometryType() == QGis.Polygon):
-    #                self.InputLayer.addItem(alayer.name(), alayer.id())
-    #    # Set the previous selection
-    #    for i in range(self.InputLayer.count()):
-    #        if self.InputLayer.itemData(i) == inputlayerid:
-    #            self.InputLayer.setCurrentIndex(i)
-    #    self.layerlistchanging = False
 
     def layerchanged(self, number=0):
         """Do the necessary updates after a layer selection has
            been changed."""
-        ## If the layer list is being updated, don't do anything
-        #if self.layerlistchanging:
-        #    return
-        #self.button_box.button(QDialogButtonBox.Ok).setEnabled(False)
         self.layerselectionactive = True
         layerindex = self.InputLayer.currentIndex()
         layerId = self.InputLayer.itemData(layerindex)
@@ -571,20 +362,3 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         return
         #self.showInfo("showEvent")
 
-
-def saveDialog(parent):
-        """Shows a file dialog and return the selected file path."""
-        settings = QSettings()
-        key = '/UI/lastShapefileDir'
-        outDir = settings.value(key)
-        filter = 'Comma Separated Value (*.csv)'
-        outFilePath = QFileDialog.getSaveFileName(parent,
-                       parent.tr('Output CSV file'), outDir, filter)
-        outFilePath = unicode(outFilePath)
-        if outFilePath:
-            root, ext = os.path.splitext(outFilePath)
-            if ext.upper() != '.CSV':
-                outFilePath = '%s.csv' % outFilePath
-            outDir = os.path.dirname(outFilePath)
-            settings.setValue(key, outDir)
-        return outFilePath
