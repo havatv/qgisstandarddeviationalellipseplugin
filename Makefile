@@ -1,8 +1,8 @@
 #/***************************************************************************
-# histogram
+# standard deviational ellipse
 #
-# Create a histogram for a numerical attribute
-#							 -------------------
+# Create a standard deviational ellipse for a point layer
+#
 #		begin				: 2015-10-01
 #		git sha				: $Format:%H$
 #		copyright			: (C) 2015 by Håvard Tveite
@@ -38,19 +38,19 @@ LRELEASE = lrelease-qt4
 # translation
 SOURCES = \
 	__init__.py \
-	histogram.py \
-	histogram_dialog.py \
-	histogram_engine.py
+	SDEllipse.py \
+	SDEllipse_dialog.py \
+	SDEllipse_engine.py
 
-PLUGINNAME = Histogram
+PLUGINNAME = SDEllipse
 
 PY_FILES = \
-	histogram.py \
-	histogram_dialog.py \
-	histogram_engine.py \
+	SDEllipse.py \
+	SDEllipse_dialog.py \
+	SDEllipse_engine.py \
 	__init__.py
 
-UI_FILES = histogram_dialog_base.ui
+UI_FILES = SDEllipse.ui
 
 EXTRAS = icon.png metadata.txt
 

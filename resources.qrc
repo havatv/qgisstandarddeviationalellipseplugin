@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/Histogram" >
+    <qresource prefix="/plugins/SDEllipse" >
         <file>icon.png</file>
     </qresource>
 </RCC>

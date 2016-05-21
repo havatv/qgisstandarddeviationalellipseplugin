@@ -24,7 +24,7 @@ changelog=1.0
     -- First public version
 # Tags are comma separated with spaces allowed
 tags=standard,deviational,ellipse,statistics,standard deviational ellipse
-homepage=http://arken.umb.no/~havatv/gis/qgisplugins/SDEllipse/
+homepage=http://arken.nmbu.no/~havatv/gis/qgisplugins/SDEllipse/
 tracker=https://github.com/havatv/qgisstandarddeviationalellipseplugin/issues
 repository=https://github.com/havatv/qgisstandarddeviationalellipsepluginq.git
 icon=icon.png

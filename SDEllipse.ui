@@ -61,6 +61,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="useWeightsCheckBox">
+        <property name="text">
+         <string>Use weights</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="title">
          <string>Weight field</string>
