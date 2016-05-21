@@ -24,7 +24,12 @@ Functionality
 
 - The QGIS Standard Deviational Ellipse plugin can be used to
   investigate point patterns, showing a summary of the
-  distribution as an ellipse.
+  distribution as a standard deviational ellipse.
+
+- Output is a polygon layer with the standard deviational
+  ellipse as the only feature.  The following attributes are
+  available for the layer / ellipse: meanx, meany, majorangle
+  (in radians, relative to east), minorangle, majorsd, minorsd.
   
 
 Options

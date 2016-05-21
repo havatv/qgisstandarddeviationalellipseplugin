@@ -22,12 +22,10 @@
 """
 
 # User interface input components:
-#   histogramGraphicsView: The GraphicsView that contains the histogram
-#   frequencyRangeSpinBox: Spinbox to set the frequency cutoff value
 #   selectedFeaturesCheckBox: Checkbox to determine if selection is to be used
 #   useWeightsCheckBox: Checkbox to determine if weights are to be used
 #   InputLayer: The input layer
-#   inputField: The field for which the histogram is to be computed
+#   inputField: The field for weights
 
 import os
 import csv
@@ -36,7 +34,7 @@ from math import pow, log, sin, cos, pi
 from PyQt4 import uic
 from PyQt4.QtCore import SIGNAL, QObject, QThread, QCoreApplication
 from PyQt4.QtCore import QPointF, QLineF, QRectF, QSettings
-from PyQt4.QtCore import QPyNullVariant, Qt
+from PyQt4.QtCore import QPyNullVariant, Qt, QVariant
 from PyQt4.QtGui import QDialog, QDialogButtonBox, QFileDialog
 from PyQt4.QtGui import QGraphicsLineItem, QGraphicsRectItem
 from PyQt4.QtGui import QGraphicsTextItem
@@ -60,7 +58,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.plugin_dir = os.path.dirname(__file__)
 
         # Some constants
-        self.HISTOGRAM = self.tr('Histogram')
+        self.SDELLIPSE = self.tr('SD Ellipse')
         self.CANCEL = self.tr('Cancel')
         self.CLOSE = self.tr('Close')
         self.OK = self.tr('OK')
@@ -100,8 +98,6 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.layerlistchanging = False
         self.selectedFeaturesCheckBox.setChecked(True)
         self.useWeightsCheckBox.setChecked(False)
-        #self.scene = QGraphicsScene(self)
-        #self.histogramGraphicsView.setScene(self.scene)
         self.result = None
 
     def startWorker(self):
@@ -117,7 +113,8 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             self.showError(self.tr('No features in input layer'))
             #self.scene.clear()
             return
-        if (self.useWeightsCheckBox.isChecked() and self.inputField.count() == 0):
+        if (self.useWeightsCheckBox.isChecked() and
+            self.inputField.count() == 0):
             self.showError(self.tr('Missing numerical field'))
             #self.scene.clear()
             return
@@ -159,16 +156,15 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         # remove widget from the message bar (pop)
         #self.iface.messageBar().popWidget(self.messageBar)
         if ok and ret is not None:
-            #self.showInfo("Histogram: " + str(ret))
             self.result = ret
             # Draw the ellipse
-            self.drawHistogram()
+            self.drawEllipse()
         else:
             # notify the user that something went wrong
             if not ok:
                 self.showError(self.tr('Aborted') + '!')
             else:
-                self.showError(self.tr('No histogram created') + '!')
+                self.showError(self.tr('Not able to create ellipse') + '!')
         # Update the user interface
         self.progressBar.setValue(0.0)
         self.button_box.button(QDialogButtonBox.Ok).setEnabled(True)
@@ -179,24 +175,20 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
 
     def workerError(self, exception_string):
         """Report an error from the worker."""
-        #QgsMessageLog.logMessage(self.tr('Worker failed - exception') +
-        #                         ': ' + str(exception_string),
-        #                         self.HISTOGRAM,
-        #                         QgsMessageLog.CRITICAL)
         self.showError(exception_string)
 
     def workerInfo(self, message_string):
         """Report an info message from the worker."""
         QgsMessageLog.logMessage(self.tr('Worker') + ': ' +
                                  message_string,
-                                 self.HISTOGRAM,
+                                 self.SDELLIPSE,
                                  QgsMessageLog.INFO)
 
     def killWorker(self):
         """Kill the worker thread."""
         if self.worker is not None:
             QgsMessageLog.logMessage(self.tr('Killing worker'),
-                                     self.HISTOGRAM,
+                                     self.SDELLIPSE,
                                      QgsMessageLog.INFO)
             self.worker.kill()
 
@@ -207,10 +199,10 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         # exit the dialog
         QDialog.reject(self)
 
-    def drawHistogram(self):
+    def drawEllipse(self):
         #self.showInfo('Result: ' + str(self.result))
-        meanx = self.result[0] # OK
-        meany = self.result[1] # OK
+        meanx = self.result[0]
+        meany = self.result[1]
         angle1 = self.result[2]
         angle2 = self.result[3]
         SD1 = self.result[4]
@@ -225,28 +217,46 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             minoraxisangle = angle1
             majorSD = SD1
             minorSD = SD2
-        self.showInfo('Major axis angle: ' + str(majoraxisangle) + ' Major axis length: ' + str(majorSD) + ' Minor axis length: ' + str(minorSD))
+        #self.showInfo('Major axis angle: ' + str(majoraxisangle) +
+        #              ' Major axis length: ' + str(majorSD) +
+        #              ' Minor axis length: ' + str(minorSD))
         # Create the memory layer for the ellipse
+        sdefields = []
+        sdefields.append(QgsField("meanx", QVariant.Double))
+        sdefields.append(QgsField("meany", QVariant.Double))
+        sdefields.append(QgsField("majorangle", QVariant.Double))
+        sdefields.append(QgsField("minorangle", QVariant.Double))
+        sdefields.append(QgsField("majorsd", QVariant.Double))
+        sdefields.append(QgsField("minorsd", QVariant.Double))
         layeruri = 'Polygon?'
         #layeruri = 'linestring?'
         layeruri = (layeruri + 'crs=' +
                     str(self.SDLayer.dataProvider().crs().authid()))
-        memSDlayer = QgsVectorLayer(layeruri, self.SDLayer.name() + "_SDE", "memory")
+        memSDlayer = QgsVectorLayer(layeruri, self.SDLayer.name() +
+                                    "_SDE", "memory")
+        memSDlayer.startEditing()  #?
+        for field in sdefields:
+            memSDlayer.dataProvider().addAttributes([field])  #?
+
         sdfeature = QgsFeature()
         theta1 = majoraxisangle
         points = []
         step = 2 * pi / 100
         t = 0.0
         while t < 2 * pi:
-            p1 = QPointF(meanx + majorSD*cos(t)*cos(majoraxisangle) -
-                         minorSD*sin(t)*sin(majoraxisangle),
-                         meany + majorSD*cos(t)*sin(majoraxisangle) +
-                         minorSD*sin(t)*cos(majoraxisangle))
+            p1 = QPointF(meanx + majorSD * cos(t) * cos(majoraxisangle) -
+                         minorSD * sin(t) * sin(majoraxisangle),
+                         meany + majorSD * cos(t) * sin(majoraxisangle) +
+                         minorSD * sin(t) * cos(majoraxisangle))
             points.append(QgsPoint(p1))
             t = t + step
         sdfeature.setGeometry(QgsGeometry.fromPolygon([points]))
         #sdfeature.setGeometry(QgsGeometry.fromPolyline(points))
+        attrs = [meanx, meany, majoraxisangle, minoraxisangle,
+                 majorSD, minorSD]
+        sdfeature.setAttributes(attrs)
         memSDlayer.dataProvider().addFeatures([sdfeature])
+        memSDlayer.commitChanges()  #?
         memSDlayer.updateExtents()
         QgsMapLayerRegistry.instance().addMapLayers([memSDlayer])
         return
@@ -305,7 +315,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                                             level=QgsMessageBar.CRITICAL,
                                             duration=3)
         QgsMessageLog.logMessage('Error: ' + text,
-                                 self.HISTOGRAM,
+                                 self.SDELLIPSE,
                                  QgsMessageLog.CRITICAL)
 
     def showWarning(self, text):
@@ -314,7 +324,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                                             level=QgsMessageBar.WARNING,
                                             duration=2)
         QgsMessageLog.logMessage('Warning: ' + text,
-                                 self.HISTOGRAM,
+                                 self.SDELLIPSE,
                                  QgsMessageLog.WARNING)
 
     def showInfo(self, text):
@@ -323,7 +333,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                                             level=QgsMessageBar.INFO,
                                             duration=2)
         QgsMessageLog.logMessage('Info: ' + text,
-                                 self.HISTOGRAM,
+                                 self.SDELLIPSE,
                                  QgsMessageLog.INFO)
 
     # Implement the accept method to avoid exiting the dialog when
@@ -353,12 +363,10 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
 
     # Overriding
     def resizeEvent(self, event):
+        return
         #self.showInfo("resizeEvent")
-        if (self.result is not None):
-            self.drawHistogram()
 
     # Overriding
     def showEvent(self, event):
         return
         #self.showInfo("showEvent")
-

@@ -26,13 +26,10 @@ class Worker(QtCore.QObject):
         Arguments:
         inputvectorlayer --     (QgsVectorLayer) The base vector
                                  layer for the join
-        bins --                 (int) bins for end point matching
-        minvalue --             (float) lower limit for range
-        maxvalue --             (float) upper limit for range
         selectedfeaturesonly -- (boolean) should only selected
                                  features be considered
         numericalattribute --   (string) attribute name for the
-                                 numerical attribute
+                                 numerical attribute (weight)
         """
 
         QtCore.QObject.__init__(self)  # Essential!
@@ -104,8 +101,8 @@ class Worker(QtCore.QObject):
                     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
-                sumx = sumx + geom.x()
-                sumy = sumy + geom.y()
+                sumx = sumx + geom.x() * theweight
+                sumy = sumy + geom.y() * theweight
                 sumweight = sumweight + theweight
                 self.calculate_progress()
             if sumweight == 0.0:
@@ -114,7 +111,8 @@ class Worker(QtCore.QObject):
                 return
             self.meanx = sumx / sumweight
             self.meany = sumy / sumweight
-            self.status.emit('Mean x: ' + str(self.meanx) + ' Mean y: ' + str(self.meany))
+            #self.status.emit('Mean x: ' + str(self.meanx) +
+            #                 ' Mean y: ' + str(self.meany))
             # Reset the progress bar
             self.processed = 0
             self.percentage = 0
@@ -143,20 +141,29 @@ class Worker(QtCore.QObject):
                     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
-                xyw = xyw + (geom.x() - self.meanx) * (geom.y() - self.meany) * theweight
+                xyw = (xyw + (geom.x() - self.meanx) *
+                             (geom.y() - self.meany) * theweight)
                 x2w = x2w + pow(geom.x() - self.meanx, 2) * theweight
                 y2w = y2w + pow(geom.y() - self.meany, 2) * theweight
                 self.calculate_progress()
-            self.status.emit('xyw: ' + str(xyw) + ' x2w: ' + str(x2w) + ' y2w: ' + str(y2w))
+            #self.status.emit('xyw: ' + str(xyw) + ' x2w: ' +
+            #                 str(x2w) + ' y2w: ' + str(y2w))
             if xyw == 0.0:
                 self.error.emit(self.tr('Weights add to zero or identical points'))
                 self.finished.emit(False, None)
                 return
-            tantheta1 = - (x2w - y2w) / (2 * xyw) + sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2)) / (2 * xyw)
-            tantheta2 = - (x2w - y2w) / (2 * xyw) - sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2)) / (2 * xyw)
+            tantheta1 = - (x2w - y2w) / (2 * xyw) + (
+                        sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2)) /
+                        (2 * xyw))
+            tantheta2 = - (x2w - y2w) / (2 * xyw) - (
+                        sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2)) /
+                        (2 * xyw))
             self.theta1 = atan(tantheta1)
             self.theta2 = atan(tantheta2)
-            self.status.emit('theta1: ' + str(self.theta1) + ' theta2: ' + str(self.theta2) + ' diff/pi: ' + str((self.theta1-self.theta2)/pi))
+            #self.status.emit('theta1: ' + str(self.theta1) +
+            #                 ' theta2: ' + str(self.theta2) +
+            #                 ' diff/pi: ' +
+            #                 str((self.theta1-self.theta2)/pi))
             # Reset the progress bar
             self.processed = 0
             self.percentage = 0
@@ -184,17 +191,22 @@ class Worker(QtCore.QObject):
                     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
-                angleterm1 = angleterm1 + pow(
-                                 (geom.y()-self.meany) * cos(self.theta1) -
-                                 (geom.x()-self.meanx) * sin(self.theta1), 2) * theweight
-                angleterm2 = angleterm2 + pow(
-                                 (geom.y()-self.meany) * cos(self.theta2) -
-                                 (geom.x()-self.meanx) * sin(self.theta2), 2) * theweight
+                angleterm1 = (angleterm1 +
+                              pow(
+                              (geom.y() - self.meany) * cos(self.theta1) -
+                              (geom.x() - self.meanx) * sin(self.theta1), 2) *
+                             theweight)
+                angleterm2 = (angleterm2 +
+                              pow(
+                              (geom.y() - self.meany) * cos(self.theta2) -
+                              (geom.x() - self.meanx) * sin(self.theta2), 2) *
+                             theweight)
                 sumweight = sumweight + theweight
                 self.calculate_progress()
             self.SD1 = sqrt(angleterm1 / sumweight)
             self.SD2 = sqrt(angleterm2 / sumweight)
-            self.status.emit('SD1: ' + str(self.SD1) + ' SD2: ' + str(self.SD2))
+            #self.status.emit('SD1: ' + str(self.SD1) + ' SD2: '
+            #                 + str(self.SD2))
         except:
             import traceback
             self.error.emit(traceback.format_exc())
@@ -203,7 +215,9 @@ class Worker(QtCore.QObject):
             if self.abort:
                 self.finished.emit(False, None)
             else:
-                self.finished.emit(True, [self.meanx,self.meany,self.theta1,self.theta2,self.SD1,self.SD2])
+                self.finished.emit(True, [self.meanx, self.meany,
+                                          self.theta1, self.theta2,
+                                          self.SD1, self.SD2])
 
     def calculate_progress(self):
         '''Update progress and emit a signal with the percentage'''

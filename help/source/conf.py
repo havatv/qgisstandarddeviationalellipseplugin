@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'histogram'
-copyright = u'2015, Håvard Tveite'
+project = u'standard deviational ellipse'
+copyright = u'2016to, Håvard Tveite'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -178,7 +178,7 @@ htmlhelp_basename = 'TemplateClassdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'histogram.tex', u'Histogram Documentation',
+  ('index', 'sdellipse.tex', u'Standard Deviational Ellipse Documentation',
    u'Håvard Tveite', 'manual'),
 ]
 
