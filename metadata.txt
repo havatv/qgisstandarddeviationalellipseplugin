@@ -11,7 +11,7 @@
 name=Standard Deviational Ellipse
 qgisMinimumVersion=2.0
 description=Create a standard deviational ellipse for a point distribution
-about=The Standard Deviational Ellipse visualises the distribution of a point dataset. It implements the algorithms presented by Robert S. Yuill (1971).  There are no external library dependencies.  An attribute for weighting can be selected.
+about=The Standard Deviational Ellipse visualises the distribution of a point dataset. It implements the method presented by Robert S. Yuill (1971).  There are no external library dependencies.  An attribute for weighting can be selected.
 version=1.0
 author=Håvard Tveite, NMBU
 email=havard.tveite@nmbu.no
