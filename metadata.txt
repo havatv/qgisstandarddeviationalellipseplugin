@@ -26,7 +26,7 @@ changelog=1.0
 tags=standard,deviational,ellipse,statistics,standard deviational ellipse
 homepage=http://github.com/havatv/qgisstandarddeviationalellipseplugin
 tracker=http://github.com/havatv/qgisstandarddeviationalellipseplugin/issues
-repository=http://github.com/havatv/qgisstandarddeviationalellipsepluginq.git
+repository=http://github.com/havatv/qgisstandarddeviationalellipseplugin.git
 icon=icon.png
 # experimental flag
 experimental=False
