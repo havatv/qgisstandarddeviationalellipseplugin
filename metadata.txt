@@ -10,8 +10,11 @@
 [general]
 name=Standard Deviational Ellipse
 qgisMinimumVersion=2.0
-description=Create a standard deviational ellipse for a point distribution
-about=The Standard Deviational Ellipse visualises the distribution of a point dataset. It implements the method presented by Robert S. Yuill (1971).  There are no external library dependencies.  An attribute for weighting can be selected.
+description=Create a standard deviational ellipse for a set of points
+about=A standard deviational ellipse is produced according to the method presented by Robert Yuill (1971). The method does not correct for degrees of freedom. The method does not give a radius equal to the standard distance deviation for a random point distribution (to achieve this, the SDs should be multiplied by sqrt(2), as explained in the CrimeStat documentation).
+      A polygon vector layer with the standard deviational ellipse is produced, containing the attributes: meanx, meany, majorangle, minorangle, majorsd and minorsd. Angles are counter-clockwise relative to the first axis.
+      An attribute for weighting can be selected.
+      There are no external library dependencies.
 version=1.0
 author=Håvard Tveite, NMBU
 email=havard.tveite@nmbu.no
