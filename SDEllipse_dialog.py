@@ -22,15 +22,15 @@
 """
 
 # User interface input components:
-#   selectedFeaturesCheckBox: Checkbox to determine if selection is to be used
-#   useWeightsCheckBox: Checkbox to determine if weights are to be used
+#   selectedFeatures_cb: Checkbox to determine if selection is to be used
+#   useWeights_cb: Checkbox to determine if weights are to be used
 #   InputLayer: The input layer
 #   inputField: The field for weights
 
 import os
 import csv
 
-from math import pow, log, sin, cos, pi
+from math import pow, log, sin, cos, pi, sqrt
 from PyQt4 import uic
 from PyQt4.QtCore import SIGNAL, QObject, QThread, QCoreApplication
 from PyQt4.QtCore import QPointF, QLineF, QRectF, QSettings
@@ -40,6 +40,8 @@ from PyQt4.QtGui import QGraphicsLineItem, QGraphicsRectItem
 from PyQt4.QtGui import QGraphicsTextItem
 from PyQt4.QtGui import QGraphicsScene, QBrush, QPen, QColor
 from PyQt4.QtGui import QGraphicsView
+from PyQt4.QtGui import QButtonGroup
+from PyQt4.QtGui import QAbstractButton
 from qgis.core import QgsMessageLog, QgsMapLayerRegistry, QgsMapLayer
 from qgis.core import QGis, QgsPoint, QgsFeature, QgsGeometry, QgsVectorLayer
 from qgis.core import *
@@ -72,10 +74,15 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
+        self.method_group = QButtonGroup()
+        self.method_group.addButton(self.yuill_rb)
+        self.method_group.addButton(self.crimestat_rb)
+        self.method_group.buttonClicked[QAbstractButton].connect(self.methodChanged)
         okButton = self.button_box.button(QDialogButtonBox.Ok)
         okButton.setText(self.OK)
         cancelButton = self.button_box.button(QDialogButtonBox.Cancel)
         cancelButton.setText(self.CANCEL)
+        cancelButton.setEnabled(False)
         closeButton = self.button_box.button(QDialogButtonBox.Close)
         closeButton.setText(self.CLOSE)
 
@@ -96,38 +103,46 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.worker = None
         self.inputlayerid = None
         self.layerlistchanging = False
-        self.selectedFeaturesCheckBox.setChecked(True)
-        self.useWeightsCheckBox.setChecked(False)
+        self.selectedFeatures_cb.setChecked(True)
+        self.useWeights_cb.setChecked(False)
         self.result = None
 
     def startWorker(self):
         #self.showInfo('Ready to start worker')
+        self.degfreedCorr = self.degfreedcorr_cb.isChecked()
+        self.crimestatCorr = self.crimestatcorr_cb.isChecked()
         # Get the input layer
         layerindex = self.InputLayer.currentIndex()
         layerId = self.InputLayer.itemData(layerindex)
         inputlayer = QgsMapLayerRegistry.instance().mapLayer(layerId)
+        self.featureCount = inputlayer.featureCount()
         if inputlayer is None:
             self.showError(self.tr('No input layer defined'))
             return
-        if inputlayer.featureCount() == 0:
+        if self.featureCount == 0:
             self.showError(self.tr('No features in input layer'))
             #self.scene.clear()
             return
-        if (self.useWeightsCheckBox.isChecked() and
+        if (self.useWeights_cb.isChecked() and
             self.inputField.count() == 0):
             self.showError(self.tr('Missing numerical field'))
             #self.scene.clear()
             return
         fieldindex = self.inputField.currentIndex()
         fieldname = self.inputField.itemData(fieldindex)
-        if (not self.useWeightsCheckBox.isChecked()):
+        if (not self.useWeights_cb.isChecked()):
             fieldname = None
         self.result = None
         self.SDLayer = inputlayer
+        self.method = 1
+        if self.yuill_rb.isChecked():
+            self.method = 1
+        elif self.crimestat_rb.isChecked():
+            self.method = 2
         # create a new worker instance
         worker = Worker(inputlayer,
-                        self.selectedFeaturesCheckBox.isChecked(),
-                        fieldname)
+                        self.selectedFeatures_cb.isChecked(),
+                        fieldname, self.method)
         # start the worker in a new thread
         thread = QThread(self)
         worker.moveToThread(thread)
@@ -142,6 +157,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.worker = worker
         self.button_box.button(QDialogButtonBox.Ok).setEnabled(False)
         self.button_box.button(QDialogButtonBox.Close).setEnabled(False)
+        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(True)
         self.InputLayer.setEnabled(False)
         self.inputField.setEnabled(False)
 
@@ -169,6 +185,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.progressBar.setValue(0.0)
         self.button_box.button(QDialogButtonBox.Ok).setEnabled(True)
         self.button_box.button(QDialogButtonBox.Close).setEnabled(True)
+        self.button_box.button(QDialogButtonBox.Cancel).setEnabled(False)
         self.InputLayer.setEnabled(True)
         self.inputField.setEnabled(True)
         # end of workerFinished(self, ok, ret)
@@ -207,6 +224,14 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         angle2 = self.result[3]
         SD1 = self.result[4]
         SD2 = self.result[5]
+        if self.crimestatCorr and self.method != 2:
+            SD1 = SD1 * sqrt(2)
+            SD2 = SD2 * sqrt(2)
+        if self.degfreedCorr and self.method != 2:
+            SD1 = SD1 * self.featureCount / (self.featureCount - 2)
+            SD2 = SD2 * self.featureCount / (self.featureCount - 2)
+            #SD1 = SD1 * self.featureCount / (self.featureCount-1)
+            #SD2 = SD2 * self.featureCount / (self.featureCount-1)
         # Find the major and minor axis
         majoraxisangle = angle1
         minoraxisangle = angle2
@@ -232,16 +257,18 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         #layeruri = 'linestring?'
         layeruri = (layeruri + 'crs=' +
                     str(self.SDLayer.dataProvider().crs().authid()))
-        memSDlayer = QgsVectorLayer(layeruri, self.SDLayer.name() +
-                                    "_SDE", "memory")
-        memSDlayer.startEditing()  #?
+        memSDlayer = QgsVectorLayer(layeruri, self.OutputLayerName.text(),
+                                    "memory")
+#        memSDlayer = QgsVectorLayer(layeruri, self.SDLayer.name() +
+#                                    "_SDE", "memory")
+        memSDlayer.startEditing()  # ?
         for field in sdefields:
-            memSDlayer.dataProvider().addAttributes([field])  #?
+            memSDlayer.dataProvider().addAttributes([field])  # ?
 
         sdfeature = QgsFeature()
         theta1 = majoraxisangle
         points = []
-        step = 2 * pi / 100
+        step = pi / 180
         t = 0.0
         while t < 2 * pi:
             p1 = QPointF(meanx + majorSD * cos(t) * cos(majoraxisangle) -
@@ -256,7 +283,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                  majorSD, minorSD]
         sdfeature.setAttributes(attrs)
         memSDlayer.dataProvider().addFeatures([sdfeature])
-        memSDlayer.commitChanges()  #?
+        memSDlayer.commitChanges()  # ?
         memSDlayer.updateExtents()
         QgsMapLayerRegistry.instance().addMapLayers([memSDlayer])
         return
@@ -288,6 +315,10 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                     self.inputField.addItem(attrib.name(), attrib.name())
             if (self.inputField.count() > 0):
                 self.button_box.button(QDialogButtonBox.Ok).setEnabled(True)
+            self.OutputLayerName.setText(
+                "SDE_" +
+                self.method_group.checkedButton().text() +
+                "_" + self.InputLayer.currentText())
         #self.updateui()
 
     def fieldchanged(self, number=0):
@@ -308,6 +339,24 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                 maxval = inputlayer.maximumValue(inpfield)
                 if not isinstance(minval, QPyNullVariant):
                     self.button_box.button(QDialogButtonBox.Ok).setEnabled(True)
+
+    def methodChanged(self, button):
+        if self.InputLayer.currentText() is not None:
+            self.OutputLayerName.setText("SDE_" + button.text() + "_" +
+                                         self.InputLayer.currentText())
+        if button.text() == "CrimeStat":
+            self.crimestatcorr_cb.setEnabled(False)
+            self.degfreedcorr_cb.setChecked(False)
+            self.crimestatcorr_cb.setChecked(False)
+            self.degfreedcorr_cb.setEnabled(False)
+            self.useWeights_cb.setEnabled(False)
+            self.useWeights_cb.setChecked(False)
+        elif button.text() == "Yuill":
+            self.crimestatcorr_cb.setEnabled(True)
+            self.degfreedcorr_cb.setEnabled(True)
+            self.useWeights_cb.setEnabled(True)
+        else:
+            self.useWeights_cb.setEnabled(True)
 
     def showError(self, text):
         """Show an error."""

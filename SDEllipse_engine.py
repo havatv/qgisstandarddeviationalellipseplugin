@@ -20,7 +20,7 @@ class Worker(QtCore.QObject):
     finished = QtCore.pyqtSignal(bool, object)
 
     def __init__(self, inputvectorlayer, selectedfeaturesonly,
-                                  numericalattribute):
+                                  numericalattribute, method):
         """Initialise.
 
         Arguments:
@@ -30,10 +30,13 @@ class Worker(QtCore.QObject):
                                  features be considered
         numericalattribute --   (string) attribute name for the
                                  numerical attribute (weight)
+        method --               (integer) The method to be appied
+                                 1: Yuill, 2: CrimeStat
         """
 
         QtCore.QObject.__init__(self)  # Essential!
         # Creating instance variables from parameters
+        self.method = method
         self.inputvectorlayer = inputvectorlayer
         self.selectedfeaturesonly = selectedfeaturesonly
         self.numericalattribute = numericalattribute
@@ -141,25 +144,33 @@ class Worker(QtCore.QObject):
                     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
-                xyw = (xyw + (geom.x() - self.meanx) *
-                             (geom.y() - self.meany) * theweight)
-                x2w = x2w + pow(geom.x() - self.meanx, 2) * theweight
-                y2w = y2w + pow(geom.y() - self.meany, 2) * theweight
+                xm = geom.x() - self.meanx
+                ym = geom.y() - self.meany
+                xyw = xyw + xm * ym * theweight
+                x2w = x2w + pow(xm, 2) * theweight
+                y2w = y2w + pow(ym, 2) * theweight
                 self.calculate_progress()
             #self.status.emit('xyw: ' + str(xyw) + ' x2w: ' +
             #                 str(x2w) + ' y2w: ' + str(y2w))
             if xyw == 0.0:
-                self.error.emit(self.tr('Weights add to zero or identical points'))
+                self.error.emit(
+                  self.tr('Weights add to zero or identical points'))
                 self.finished.emit(False, None)
                 return
-            tantheta1 = - (x2w - y2w) / (2 * xyw) + (
-                        sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2)) /
-                        (2 * xyw))
-            tantheta2 = - (x2w - y2w) / (2 * xyw) - (
-                        sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2)) /
-                        (2 * xyw))
+            top1 = x2w - y2w
+            top2 = sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2))
+            bottom = 2 * xyw
+            tantheta1 = - top1 / bottom + (
+                        top2 /
+                        bottom)
+            tantheta2 = - top1 / bottom - (
+                        top2 /
+                        bottom)
             self.theta1 = atan(tantheta1)
             self.theta2 = atan(tantheta2)
+            if self.method == 2:
+                self.theta1 = atan(-tantheta1)
+                self.theta2 = atan(-tantheta2)
             #self.status.emit('theta1: ' + str(self.theta1) +
             #                 ' theta2: ' + str(self.theta2) +
             #                 ' diff/pi: ' +
@@ -176,6 +187,8 @@ class Worker(QtCore.QObject):
             # Find the SD - trouble!
             angleterm1 = 0.0
             angleterm2 = 0.0
+            sxterm = 0.0
+            syterm = 0.0
             sumweight = 0.0
             for feat in features:
                 # Allow user abort
@@ -191,20 +204,60 @@ class Worker(QtCore.QObject):
                     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
+                xm = geom.x() - self.meanx
+                ym = geom.y() - self.meany
+                # CrimeStat - OK when angles are relative to first axis
+                #sxterm = (sxterm +
+                #          pow(xm * cos(self.theta1) +
+                #              ym * sin(self.theta1), 2) *
+                #           theweight)
+                #syterm = (syterm +
+                #          pow(xm * sin(self.theta1) -
+                #              ym * cos(self.theta1), 2) *
+                #           theweight)
+                # Crimestat / aspace - test OK, but angle relative to
+                # second axis
+                sxterm = (sxterm +
+                          pow(xm * cos(self.theta1) -
+                              ym * sin(self.theta1), 2) *
+                           theweight)
+                syterm = (syterm +
+                          pow(xm * sin(self.theta1) +
+                              ym * cos(self.theta1), 2) *
+                           theweight)
+                # Test aspace - OK, but angle relative to second axis
+                #sxterm = sxterm + theweight * (pow(xm, 2) *
+                #                   pow(cos(self.theta1), 2) +
+                #                  pow(ym, 2) *
+                #                   pow(sin(self.theta1), 2) -
+                #                  2 * xm * ym *
+                #                   sin(self.theta1) * cos(self.theta1))
+                #syterm = syterm + theweight * (pow(xm, 2) *
+                #                   pow(sin(self.theta1), 2) +
+                #                  pow(ym, 2) *
+                #                   pow(cos(self.theta1), 2) +
+                #                  2 * xm * ym *
+                #                   sin(self.theta1) * cos(self.theta1))
+                # Yuill - OK
                 angleterm1 = (angleterm1 +
-                              pow(
-                              (geom.y() - self.meany) * cos(self.theta1) -
-                              (geom.x() - self.meanx) * sin(self.theta1), 2) *
-                             theweight)
+                              pow(ym * cos(self.theta1) -
+                                  xm * sin(self.theta1), 2) *
+                              theweight)
                 angleterm2 = (angleterm2 +
-                              pow(
-                              (geom.y() - self.meany) * cos(self.theta2) -
-                              (geom.x() - self.meanx) * sin(self.theta2), 2) *
-                             theweight)
+                              pow(ym * cos(self.theta2) -
+                                  xm * sin(self.theta2), 2) *
+                              theweight)
                 sumweight = sumweight + theweight
                 self.calculate_progress()
-            self.SD1 = sqrt(angleterm1 / sumweight)
-            self.SD2 = sqrt(angleterm2 / sumweight)
+            if self.method == 1:  # yuill - OK
+                self.SD1 = sqrt(angleterm1 / sumweight)
+                self.SD2 = sqrt(angleterm2 / sumweight)
+            elif self.method == 2:  # crimestat
+                self.SD1 = sqrt(2 * syterm / (sumweight - 2))
+                self.SD2 = sqrt(2 * sxterm / (sumweight - 2))
+                # Fix angles to be relative to the first axis
+                self.theta1 = atan(tantheta1)
+                self.theta2 = atan(tantheta2)
             #self.status.emit('SD1: ' + str(self.SD1) + ' SD2: '
             #                 + str(self.SD2))
         except:
