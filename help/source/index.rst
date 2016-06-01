@@ -35,8 +35,11 @@ Functionality
 
 - Output is a polygon layer with the standard deviational
   ellipse as the only feature.  The following attributes are
-  available for the layer / ellipse: meanx, meany, majorangle
-  (in radians, relative to east), minorangle, majorsd, minorsd.
+  available for the layer / ellipse: meanx, meany, majoranglerad
+  (major axis angle in radians counter-clockwise relative to x/east),
+  directiondeg ("compass" direction - clockwise relative to north),
+  majorsd (SD along the major axis), minorsd (SD along the minor
+  axis).
   
 
 Options
@@ -68,8 +71,9 @@ is performed in a separate thread.
 
 Versions
 ===============
-The current version is 1.1.
+The current version is 1.2.
 
+- 1.2: Added compass direction for the major axis
 - 1.1: Added the CrimeStat option
        Added some more options and modified the user interface
 - 1.0: First official version.

@@ -242,6 +242,10 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             minoraxisangle = angle1
             majorSD = SD1
             minorSD = SD2
+        # Calculate the "compass" direction angle (clockwise from north)
+        direction = 90.0 - majoraxisangle * 180 / pi
+        # Calculte the eccentricity
+        eccentricity = sqrt(1 - pow(minorSD, 2) / pow(majorSD, 2))
         #self.showInfo('Major axis angle: ' + str(majoraxisangle) +
         #              ' Major axis length: ' + str(majorSD) +
         #              ' Minor axis length: ' + str(minorSD))
@@ -249,10 +253,12 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         sdefields = []
         sdefields.append(QgsField("meanx", QVariant.Double))
         sdefields.append(QgsField("meany", QVariant.Double))
-        sdefields.append(QgsField("majorangle", QVariant.Double))
-        sdefields.append(QgsField("minorangle", QVariant.Double))
+        sdefields.append(QgsField("majoranglerad", QVariant.Double))
+        #sdefields.append(QgsField("minoranglerad", QVariant.Double))
+        sdefields.append(QgsField("directiondeg", QVariant.Double))
         sdefields.append(QgsField("majorsd", QVariant.Double))
         sdefields.append(QgsField("minorsd", QVariant.Double))
+        sdefields.append(QgsField("eccentricity", QVariant.Double))
         layeruri = 'Polygon?'
         #layeruri = 'linestring?'
         layeruri = (layeruri + 'crs=' +
@@ -279,8 +285,8 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             t = t + step
         sdfeature.setGeometry(QgsGeometry.fromPolygon([points]))
         #sdfeature.setGeometry(QgsGeometry.fromPolyline(points))
-        attrs = [meanx, meany, majoraxisangle, minoraxisangle,
-                 majorSD, minorSD]
+        attrs = [meanx, meany, majoraxisangle, direction,
+                 majorSD, minorSD, eccentricity]
         sdfeature.setAttributes(attrs)
         memSDlayer.dataProvider().addFeatures([sdfeature])
         memSDlayer.commitChanges()  # ?

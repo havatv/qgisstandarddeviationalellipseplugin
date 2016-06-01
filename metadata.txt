@@ -15,7 +15,7 @@ about=A standard deviational ellipse is produced according to the method present
       A polygon vector layer with the standard deviational ellipse is produced, containing the attributes: meanx, meany, majorangle, minorangle, majorsd and minorsd. Angles are counter-clockwise relative to the first axis.
       An attribute for weighting can be selected.
       There are no external library dependencies.
-version=1.1
+version=1.2
 author=Håvard Tveite, NMBU
 email=havard.tveite@nmbu.no
 
@@ -23,9 +23,12 @@ email=havard.tveite@nmbu.no
 
 # Optional items:
 # Uncomment the following line and add your changelog:
-changelog=1.0
+changelog=1.2
+    -- Added compass direction for the major axis (issue #4)
+    1.1
     -- Added the CrimeStat option (issue #3)
        Added some more options and modified the user interface
+    1.0
     -- First public version
 # Tags are comma separated with spaces allowed
 tags=standard,deviational,deviation,ellipse,statistics,standard deviational ellipse
