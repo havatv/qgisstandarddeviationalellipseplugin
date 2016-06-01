@@ -37,10 +37,9 @@ Functionality
   ellipse as the only feature.  The following attributes are
   available for the layer / ellipse: meanx, meany, majoranglerad
   (major axis angle in radians counter-clockwise relative to x/east),
-  directiondeg ("compass" direction - clockwise relative to north),
-  majorsd (SD along the major axis), minorsd (SD along the minor
-  axis).
-  
+  directiondeg ("compass" direction - degrees clockwise relative
+  to north), majorsd (SD along the major axis), minorsd (SD along
+  the minor axis, eccentricity).
 
 Options
 =============

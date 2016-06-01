@@ -112,10 +112,9 @@ class Worker(QtCore.QObject):
                 self.error.emit(self.tr('Weights add to zero'))
                 self.finished.emit(False, None)
                 return
+            # Calculate the (weighted) mean
             self.meanx = sumx / sumweight
             self.meany = sumy / sumweight
-            #self.status.emit('Mean x: ' + str(self.meanx) +
-            #                 ' Mean y: ' + str(self.meany))
             # Reset the progress bar
             self.processed = 0
             self.percentage = 0
@@ -150,16 +149,16 @@ class Worker(QtCore.QObject):
                 x2w = x2w + pow(xm, 2) * theweight
                 y2w = y2w + pow(ym, 2) * theweight
                 self.calculate_progress()
-            #self.status.emit('xyw: ' + str(xyw) + ' x2w: ' +
-            #                 str(x2w) + ' y2w: ' + str(y2w))
             if xyw == 0.0:
                 self.error.emit(
-                  self.tr('Weights add to zero or identical points'))
+                  self.tr('Weights add to zero or all points are identical'))
                 self.finished.emit(False, None)
                 return
             top1 = x2w - y2w
             top2 = sqrt(pow(x2w - y2w, 2) + 4 * pow(xyw, 2))
             bottom = 2 * xyw
+            # Compute the angles (Yuill - counter-clockwise from
+            # the x-axis / east)
             tantheta1 = - top1 / bottom + (
                         top2 /
                         bottom)
@@ -168,6 +167,7 @@ class Worker(QtCore.QObject):
                         bottom)
             self.theta1 = atan(tantheta1)
             self.theta2 = atan(tantheta2)
+            # CrimeStat / aspace uses clockwise angles from north:
             if self.method == 2:
                 self.theta1 = atan(-tantheta1)
                 self.theta2 = atan(-tantheta2)
@@ -206,47 +206,40 @@ class Worker(QtCore.QObject):
                 geom = feat.geometry().asPoint()
                 xm = geom.x() - self.meanx
                 ym = geom.y() - self.meany
-                # CrimeStat - OK when angles are relative to first axis
-                #sxterm = (sxterm +
-                #          pow(xm * cos(self.theta1) +
-                #              ym * sin(self.theta1), 2) *
-                #           theweight)
-                #syterm = (syterm +
-                #          pow(xm * sin(self.theta1) -
-                #              ym * cos(self.theta1), 2) *
-                #           theweight)
-                # Crimestat / aspace - test OK, but angle relative to
-                # second axis
-                sxterm = (sxterm +
+                if self.method == 1: # Yuill - OK
+                    # Angles counter-clockwise relative to the x axis
+                    angleterm1 = (angleterm1 +
+                                  pow(ym * cos(self.theta1) -
+                                      xm * sin(self.theta1), 2) *
+                                  theweight)
+                    angleterm2 = (angleterm2 +
+                                  pow(ym * cos(self.theta2) -
+                                      xm * sin(self.theta2), 2) *
+                                  theweight)
+                if self.method == 2:
+                    # Crimestat / aspace - OK (angles clockwise relative
+                    # to north):
+                    sxterm = (sxterm +
                           pow(xm * cos(self.theta1) -
                               ym * sin(self.theta1), 2) *
                            theweight)
-                syterm = (syterm +
+                    syterm = (syterm +
                           pow(xm * sin(self.theta1) +
                               ym * cos(self.theta1), 2) *
                            theweight)
-                # Test aspace - OK, but angle relative to second axis
-                #sxterm = sxterm + theweight * (pow(xm, 2) *
-                #                   pow(cos(self.theta1), 2) +
-                #                  pow(ym, 2) *
-                #                   pow(sin(self.theta1), 2) -
-                #                  2 * xm * ym *
-                #                   sin(self.theta1) * cos(self.theta1))
-                #syterm = syterm + theweight * (pow(xm, 2) *
-                #                   pow(sin(self.theta1), 2) +
-                #                  pow(ym, 2) *
-                #                   pow(cos(self.theta1), 2) +
-                #                  2 * xm * ym *
-                #                   sin(self.theta1) * cos(self.theta1))
-                # Yuill - OK
-                angleterm1 = (angleterm1 +
-                              pow(ym * cos(self.theta1) -
-                                  xm * sin(self.theta1), 2) *
-                              theweight)
-                angleterm2 = (angleterm2 +
-                              pow(ym * cos(self.theta2) -
-                                  xm * sin(self.theta2), 2) *
-                              theweight)
+                    # Test aspace - OK, but angle relative to second axis
+                    #sxterm = sxterm + theweight * (pow(xm, 2) *
+                    #                   pow(cos(self.theta1), 2) +
+                    #                  pow(ym, 2) *
+                    #                   pow(sin(self.theta1), 2) -
+                    #                  2 * xm * ym *
+                    #                   sin(self.theta1) * cos(self.theta1))
+                    #syterm = syterm + theweight * (pow(xm, 2) *
+                    #                   pow(sin(self.theta1), 2) +
+                    #                  pow(ym, 2) *
+                    #                   pow(cos(self.theta1), 2) +
+                    #                  2 * xm * ym *
+                    #                   sin(self.theta1) * cos(self.theta1))
                 sumweight = sumweight + theweight
                 self.calculate_progress()
             if self.method == 1:  # yuill - OK
