@@ -9,8 +9,14 @@ from qgis.core import QgsVectorLayer
 class Worker(QtCore.QObject):
     '''The worker that does the heavy lifting.
     The error ellipse is returned as a list of numbers
-    (centrex, centrey, angle in radians, length of longest axis,
-     length of shortest axis).
+    (centrex, centrey, angle in radians (counter-clockwise
+     relative to the x axis), length of major axis,
+     length of minor axis).
+
+    The original formulaes for the CrimeStat / R aspace
+    method are based on clockwise angles relative to north.
+    These have been adapted to counter-clockwise angles
+    relative to x / east.
     '''
     # Define the signals used to communicate
     progress = QtCore.pyqtSignal(float)  # For reporting progress
@@ -60,8 +66,6 @@ class Worker(QtCore.QObject):
         self.increment = self.feature_count // 1000
 
     def run(self):
-        #self.status.emit('Started! Min: ' + str(self.minvalue) +
-        #                 ' Max: ' + str(self.maxvalue))
         try:
             # Make sure the input layer is OK
             inputlayer = self.inputvectorlayer
@@ -71,8 +75,8 @@ class Worker(QtCore.QObject):
                 return
             self.feature_count = inputlayer.featureCount()
             # Check if the layer has features
-            if self.feature_count == 0:
-                self.error.emit("No features in layer")
+            if self.feature_count < 2:
+                self.error.emit("Not enough features in layer")
                 self.finished.emit(False, None)
                 return
             # Prepare for the progress bar
@@ -115,6 +119,7 @@ class Worker(QtCore.QObject):
             # Calculate the (weighted) mean
             self.meanx = sumx / sumweight
             self.meany = sumy / sumweight
+
             # Reset the progress bar
             self.processed = 0
             self.percentage = 0
@@ -159,22 +164,23 @@ class Worker(QtCore.QObject):
             bottom = 2 * xyw
             # Compute the angles (Yuill - counter-clockwise from
             # the x-axis / east)
-            tantheta1 = - top1 / bottom + (
-                        top2 /
-                        bottom)
-            tantheta2 = - top1 / bottom - (
-                        top2 /
-                        bottom)
+            # (In the CrimeStat / aspace method the angles are clockwise
+            # relative to north, so there was no leading minus)
+            tantheta1 = - top1 / bottom + top2 / bottom
+            tantheta2 = - top1 / bottom - top2 / bottom
             self.theta1 = atan(tantheta1)
             self.theta2 = atan(tantheta2)
+            # Find sigma1 and sigma2 according to Wang et.al.
+            # "Spectral decomposition"
+            #self.sigma1 = sqrt(((x2w + y2w) + top2) / (2 * sumweight))
+            #self.sigma2 = sqrt(((x2w + y2w) - top2) / (2 * sumweight))
             # CrimeStat / aspace uses clockwise angles from north:
-            if self.method == 2:
-                self.theta1 = atan(-tantheta1)
-                self.theta2 = atan(-tantheta2)
-            #self.status.emit('theta1: ' + str(self.theta1) +
-            #                 ' theta2: ' + str(self.theta2) +
-            #                 ' diff/pi: ' +
-            #                 str((self.theta1-self.theta2)/pi))
+            #if self.method == 2:
+            #    self.theta1 = atan(-tantheta1)
+            #    self.theta2 = atan(-tantheta2)
+
+            # Could this be skipped if we use the Wang calculations?
+            # How to find the angle of the major axis?
             # Reset the progress bar
             self.processed = 0
             self.percentage = 0
@@ -206,7 +212,8 @@ class Worker(QtCore.QObject):
                 geom = feat.geometry().asPoint()
                 xm = geom.x() - self.meanx
                 ym = geom.y() - self.meany
-                if self.method == 1: # Yuill - OK
+                if self.method == 1 or self.method == 2:  # Yuill/CrimeStat OK
+                #if self.method == 1: # Yuill - OK
                     # Angles counter-clockwise relative to the x axis
                     angleterm1 = (angleterm1 +
                                   pow(ym * cos(self.theta1) -
@@ -216,41 +223,29 @@ class Worker(QtCore.QObject):
                                   pow(ym * cos(self.theta2) -
                                       xm * sin(self.theta2), 2) *
                                   theweight)
-                if self.method == 2:
-                    # Crimestat / aspace - OK (angles clockwise relative
-                    # to north):
-                    sxterm = (sxterm +
-                          pow(xm * cos(self.theta1) -
-                              ym * sin(self.theta1), 2) *
-                           theweight)
-                    syterm = (syterm +
-                          pow(xm * sin(self.theta1) +
-                              ym * cos(self.theta1), 2) *
-                           theweight)
-                    # Test aspace - OK, but angle relative to second axis
-                    #sxterm = sxterm + theweight * (pow(xm, 2) *
-                    #                   pow(cos(self.theta1), 2) +
-                    #                  pow(ym, 2) *
-                    #                   pow(sin(self.theta1), 2) -
-                    #                  2 * xm * ym *
-                    #                   sin(self.theta1) * cos(self.theta1))
-                    #syterm = syterm + theweight * (pow(xm, 2) *
-                    #                   pow(sin(self.theta1), 2) +
-                    #                  pow(ym, 2) *
-                    #                   pow(cos(self.theta1), 2) +
-                    #                  2 * xm * ym *
-                    #                   sin(self.theta1) * cos(self.theta1))
+                #if self.method == 2:
+                #    # Crimestat / aspace - OK (angles clockwise relative
+                #    # to north):
+                #    sxterm = (sxterm +
+                #          pow(xm * cos(self.theta1) -
+                #              ym * sin(self.theta1), 2) *
+                #          theweight)
+                #    syterm = (syterm +
+                #          pow(xm * sin(self.theta1) +
+                #              ym * cos(self.theta1), 2) *
+                #           theweight)
                 sumweight = sumweight + theweight
                 self.calculate_progress()
-            if self.method == 1:  # yuill - OK
+            if self.method == 1 or self.method == 2:  # Yuill/CrimeStat
+            #if self.method == 1:  # Yuill - OK
                 self.SD1 = sqrt(angleterm1 / sumweight)
                 self.SD2 = sqrt(angleterm2 / sumweight)
-            elif self.method == 2:  # crimestat
-                self.SD1 = sqrt(2 * syterm / (sumweight - 2))
-                self.SD2 = sqrt(2 * sxterm / (sumweight - 2))
-                # Fix angles to be relative to the first axis
-                self.theta1 = atan(tantheta1)
-                self.theta2 = atan(tantheta2)
+            #elif self.method == 2:  # crimestat
+            #    self.SD1 = sqrt(2 * syterm / (sumweight - 2))
+            #    self.SD2 = sqrt(2 * sxterm / (sumweight - 2))
+            #    # Fix angles to be relative to the first axis
+            #    self.theta1 = atan(tantheta1)
+            #    self.theta2 = atan(tantheta2)
             #self.status.emit('SD1: ' + str(self.SD1) + ' SD2: '
             #                 + str(self.SD2))
         except:
