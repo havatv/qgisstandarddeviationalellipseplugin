@@ -13,7 +13,7 @@ The QGIS Standard Deviational Ellipse Plugin
 
 The QGIS Standard Deviational Ellipse plugin implements the
 method presented in
-`The Standard Deviational Ellipse - An Updated Tool for Spatial Description`_
+`The Standard Deviational Ellipse; An Updated Tool for Spatial Description`_
 Robert S. Yuill.
 Geografiska Annaler. Series B, Human Geography.
 Vol. 53, No. 1 (1971), pp. 28-39.
@@ -85,14 +85,15 @@ Links
 
 `Standard Deviational Ellipse code repository`_
 
-`The Standard Deviational Ellipse An Updated Tool for Spatial Description`_
-
 `Standard Deviational Ellipse issues`_
 
-`The Standard Deviational Ellipse - An Updated Tool for Spatial Description`_
+`The Standard Deviational Ellipse; An Updated Tool for Spatial Description`_
 
-.. _The Standard Deviational Ellipse - An Updated Tool for Spatial Description: https://www.jstor.org/stable/490885
+`Confidence Analysis of Standard Deviational Ellipse and Its Extension into Higher Dimensional Euclidean Space`_
+
+.. _The Standard Deviational Ellipse; An Updated Tool for Spatial Description: https://www.jstor.org/stable/490885
 .. _Standard Deviational Ellipse code repository: https://github.com/havatv/qgisstandarddeviationalellipseplugin.git
 .. _Standard Deviational Ellipse Plugin: http://arken.umb.no/~havatv/gis/qgisplugins/SDEllipse
 .. _Standard Deviational Ellipse issues: https://github.com/havatv/qgisstandarddeviationalellipseplugin/issues
 .. |N2| replace:: N\ :sup:`2`
+.. _Confidence Analysis of Standard Deviational Ellipse and Its Extension into Higher Dimensional Euclidean Space: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4358977/
