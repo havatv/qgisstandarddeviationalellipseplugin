@@ -26,6 +26,7 @@ email=havard.tveite@nmbu.no
 # Uncomment the following line and add your changelog:
 changelog=1.2
     -- Added compass direction for the major axis (issue #4)
+    -- Fix DOF calculations (issue #5)
     1.1
     -- Added the CrimeStat option (issue #3)
        Added some more options and modified the user interface
