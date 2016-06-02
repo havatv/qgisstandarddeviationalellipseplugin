@@ -41,32 +41,32 @@
         <translation>Ingen numeriske egenskaper</translation>
     </message>
     <message>
-        <location filename="SDEllipse_dialog.py" line="181"/>
+        <location filename="SDEllipse_dialog.py" line="182"/>
         <source>Aborted</source>
         <translation>Avbrutt</translation>
     </message>
     <message>
-        <location filename="SDEllipse_dialog.py" line="199"/>
+        <location filename="SDEllipse_dialog.py" line="200"/>
         <source>Worker</source>
         <translation>Arbeider</translation>
     </message>
     <message>
-        <location filename="SDEllipse_dialog.py" line="207"/>
+        <location filename="SDEllipse_dialog.py" line="208"/>
         <source>Killing worker</source>
         <translation>Dreper arbeidsprosessen</translation>
     </message>
     <message>
-        <location filename="SDEllipse_dialog.py" line="361"/>
+        <location filename="SDEllipse_dialog.py" line="372"/>
         <source>Error</source>
         <translation>Feil</translation>
     </message>
     <message>
-        <location filename="SDEllipse_dialog.py" line="370"/>
+        <location filename="SDEllipse_dialog.py" line="381"/>
         <source>Warning</source>
         <translation>Advarsel</translation>
     </message>
     <message>
-        <location filename="SDEllipse_dialog.py" line="379"/>
+        <location filename="SDEllipse_dialog.py" line="390"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
@@ -76,7 +76,7 @@
         <translation>SD Ellipse</translation>
     </message>
     <message>
-        <location filename="SDEllipse_dialog.py" line="183"/>
+        <location filename="SDEllipse_dialog.py" line="184"/>
         <source>Not able to create ellipse</source>
         <translation>Klarte ikke å lage ellipse</translation>
     </message>
@@ -94,15 +94,15 @@
         <translation>Summen av vektene er 0</translation>
     </message>
     <message>
-        <location filename="SDEllipse_engine.py" line="156"/>
-        <source>Weights add to zero or identical points</source>
-        <translation>Summen av vektene er 0, eller punktene er like</translation>
+        <location filename="SDEllipse_engine.py" line="153"/>
+        <source>Weights add to zero or all points are identical</source>
+        <translation>Summen av vektene er 0, eller alle punktene har samme plassering</translation>
     </message>
 </context>
 <context>
     <name>linedirectionhistogramDialogBase</name>
     <message>
-        <location filename="SDEllipse.ui" line="135"/>
+        <location filename="SDEllipse.ui" line="133"/>
         <source>Selected features only</source>
         <translation>Kun valgte objekter</translation>
     </message>
@@ -112,17 +112,17 @@
         <translation>Standardavviksellipse</translation>
     </message>
     <message>
-        <location filename="SDEllipse.ui" line="67"/>
+        <location filename="SDEllipse.ui" line="65"/>
         <source>Input (point) vector layer</source>
         <translation>Inndatasett (vektor, punkt)</translation>
     </message>
     <message>
-        <location filename="SDEllipse.ui" line="96"/>
+        <location filename="SDEllipse.ui" line="94"/>
         <source>Use weights</source>
         <translation>Bruk vekting</translation>
     </message>
     <message>
-        <location filename="SDEllipse.ui" line="109"/>
+        <location filename="SDEllipse.ui" line="107"/>
         <source>Weight field</source>
         <translation>Vektingsfelt</translation>
     </message>
@@ -137,34 +137,34 @@
         <translation>Korrigerer for DF og sqrt(2)</translation>
     </message>
     <message>
-        <location filename="SDEllipse.ui" line="152"/>
+        <location filename="SDEllipse.ui" line="150"/>
         <source>Corrections</source>
         <translation>Korreksjoner</translation>
     </message>
     <message>
-        <location filename="SDEllipse.ui" line="160"/>
+        <location filename="SDEllipse.ui" line="158"/>
         <source>Correct by multiplying by the square root of 2</source>
         <translation>Korriger ved å multiplisere med kvadratrota av 2</translation>
     </message>
     <message>
-        <location filename="SDEllipse.ui" line="163"/>
+        <location filename="SDEllipse.ui" line="161"/>
         <source>sqrt(2) correction</source>
         <translation>sqrt(2)-korreksjon</translation>
     </message>
     <message>
-        <location filename="SDEllipse.ui" line="170"/>
-        <source>Correct using degrees of freedom (DOF)</source>
-        <translation>Korriger for frihetsgrader (DOF)</translation>
-    </message>
-    <message>
-        <location filename="SDEllipse.ui" line="173"/>
-        <source>DOF correction</source>
-        <translation>DOF-korreksjon</translation>
-    </message>
-    <message>
-        <location filename="SDEllipse.ui" line="185"/>
+        <location filename="SDEllipse.ui" line="183"/>
         <source>Output (polygon) vector layer</source>
         <translation>Utlag vektor-lag (polygon)</translation>
+    </message>
+    <message>
+        <location filename="SDEllipse.ui" line="171"/>
+        <source>DF correction</source>
+        <translation>DF-korreksjon</translation>
+    </message>
+    <message>
+        <location filename="SDEllipse.ui" line="168"/>
+        <source>Correct using degrees of freedom (DF)</source>
+        <translation>Korriger med frihetsgrader (DF)</translation>
     </message>
 </context>
 </TS>
