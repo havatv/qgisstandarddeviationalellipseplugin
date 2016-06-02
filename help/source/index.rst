@@ -39,7 +39,7 @@ Functionality
   (major axis angle in radians counter-clockwise relative to x/east),
   directiondeg ("compass" direction - degrees clockwise relative
   to north), majorsd (SD along the major axis), minorsd (SD along
-  the minor axis, eccentricity).
+  the minor axis that is normal to the major axis) and eccentricity.
 
 Options
 =============
@@ -60,6 +60,8 @@ Options
   (to make the standard deviational ellipse equal to the
   standard distance deviation when the distribution of points
   is random and even in all directions).
+  With both of these corrections applied, the result will be
+  the same as for the CrimeStat method.
 
 Implementation
 ================
@@ -72,9 +74,13 @@ Versions
 ===============
 The current version is 1.2.
 
-- 1.2: Added compass direction for the major axis
-- 1.1: Added the CrimeStat option
-       Added some more options and modified the user interface
+- 1.2: Added "compass" direction for the major axis and eccentricity.
+  Fixed DOF calculations.
+  User interface and robustness improvements.
+
+- 1.1: Added the CrimeStat option.
+  Added some more options and modified the user interface.
+
 - 1.0: First official version.
 
 
