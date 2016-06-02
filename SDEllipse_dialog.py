@@ -172,6 +172,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         # remove widget from the message bar (pop)
         #self.iface.messageBar().popWidget(self.messageBar)
         if ok and ret is not None:
+            #self.showInfo("Result: " + str(ret))
             self.result = ret
             # Draw the ellipse
             self.drawEllipse()
@@ -228,8 +229,10 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             SD1 = SD1 * sqrt(2)
             SD2 = SD2 * sqrt(2)
         if self.degfreedCorr and self.method != 2:
-            SD1 = SD1 * self.featureCount / (self.featureCount - 2)
-            SD2 = SD2 * self.featureCount / (self.featureCount - 2)
+            SD1 = SD1 * sqrt(self.featureCount) / sqrt(self.featureCount - 2)
+            SD2 = SD2 * sqrt(self.featureCount) / sqrt(self.featureCount - 2)
+            #SD1 = SD1 * self.featureCount / (self.featureCount - 2)
+            #SD2 = SD2 * self.featureCount / (self.featureCount - 2)
             #SD1 = SD1 * self.featureCount / (self.featureCount-1)
             #SD2 = SD2 * self.featureCount / (self.featureCount-1)
         # Find the major and minor axis
