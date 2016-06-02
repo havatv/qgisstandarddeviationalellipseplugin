@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>564</width>
+    <width>410</width>
     <height>347</height>
    </rect>
   </property>
@@ -47,7 +47,7 @@
            <string>Correction for DF and sqrt(2)</string>
           </property>
           <property name="text">
-           <string notr="true">CrimeStat</string>
+           <string notr="true">&quot;CrimeStat&quot;</string>
           </property>
          </widget>
         </item>
