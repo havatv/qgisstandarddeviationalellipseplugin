@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>564</width>
-    <height>344</height>
+    <height>347</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,8 +54,6 @@
        </layout>
       </item>
      </layout>
-     <zorder>label</zorder>
-     <zorder>horizontalLayoutWidget</zorder>
     </widget>
    </item>
    <item>
@@ -167,10 +165,10 @@
         <item>
          <widget class="QCheckBox" name="degfreedcorr_cb">
           <property name="toolTip">
-           <string>Correct using degrees of freedom (DOF)</string>
+           <string>Correct using degrees of freedom (DF)</string>
           </property>
           <property name="text">
-           <string>DOF correction</string>
+           <string>DF correction</string>
           </property>
          </widget>
         </item>
