@@ -35,11 +35,11 @@ Functionality
 
 - Output is a polygon layer with the standard deviational
   ellipse as the only feature.  The following attributes are
-  available for the layer / ellipse: meanx, meany, majoranglerad
-  (major axis angle in radians counter-clockwise relative to x/east),
-  directiondeg ("compass" direction - degrees clockwise relative
-  to north), majorsd (SD along the major axis), minorsd (SD along
-  the minor axis that is normal to the major axis) and eccentricity.
+  available for the layer / ellipse: meanx, meany, majorsd (SD along
+  the major axis), minorsd (SD along the minor axis that is normal
+  to the major axis), majorangle(rad) (major axis angle in radians
+  counter-clockwise relative to x/east), directiond(eg) ("compass"
+  direction - degrees clockwise relative to north) and eccentricity.
 
 Options
 =============
@@ -93,9 +93,13 @@ Links
 
 `Standard Deviational Ellipse issues`_
 
-`The Standard Deviational Ellipse; An Updated Tool for Spatial Description`_
+Robert S. Yuill: `The Standard Deviational Ellipse; An Updated Tool for Spatial Description`_
 
-`Confidence Analysis of Standard Deviational Ellipse and Its Extension into Higher Dimensional Euclidean Space`_
+Bin Wang, Wenzhong Shi and Zelang Miao: `Confidence Analysis of Standard Deviational Ellipse and Its Extension into Higher Dimensional Euclidean Space`_
+
+Jianxin Gong: `Clarifying the Standard Deviational Ellipse`_
+
+Ned Levine: `CrimeStat IV, Part II Spatial Description`_
 
 .. _The Standard Deviational Ellipse; An Updated Tool for Spatial Description: https://www.jstor.org/stable/490885
 .. _Standard Deviational Ellipse code repository: https://github.com/havatv/qgisstandarddeviationalellipseplugin.git
@@ -103,3 +107,5 @@ Links
 .. _Standard Deviational Ellipse issues: https://github.com/havatv/qgisstandarddeviationalellipseplugin/issues
 .. |N2| replace:: N\ :sup:`2`
 .. _Confidence Analysis of Standard Deviational Ellipse and Its Extension into Higher Dimensional Euclidean Space: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4358977/
+.. _Clarifying the Standard Deviational Ellipse: http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2002.tb01082.x/pdf
+.. _CrimeStat IV, Part II Spatial Description: http://nij.gov/topics/technology/maps/documents/crimestat-files/CrimeStat%20IV%20Chapter%204.pdf

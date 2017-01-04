@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>410</width>
+    <width>479</width>
     <height>347</height>
    </rect>
   </property>
@@ -214,6 +214,13 @@
        </property>
        <property name="centerButtons">
         <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="helpButton">
+       <property name="text">
+        <string>Help</string>
        </property>
       </widget>
      </item>

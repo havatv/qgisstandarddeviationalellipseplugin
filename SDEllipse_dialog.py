@@ -50,6 +50,7 @@ from qgis.core import QgsMessageLog, QgsMapLayerRegistry, QgsMapLayer
 from qgis.core import QGis, QgsPoint, QgsFeature, QgsGeometry, QgsVectorLayer
 from qgis.core import *
 from qgis.gui import QgsMessageBar
+from qgis.utils import showPluginHelp
 from SDEllipse_engine import Worker
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -65,6 +66,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         # Some constants
         self.SDELLIPSE = self.tr('SD Ellipse')
         self.CANCEL = self.tr('Cancel')
+        self.HELP = self.tr('Help')
         self.CLOSE = self.tr('Close')
         self.OK = self.tr('OK')
 
@@ -88,12 +90,16 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         cancelButton = self.button_box.button(QDialogButtonBox.Cancel)
         cancelButton.setText(self.CANCEL)
         cancelButton.setEnabled(False)
+        #helpButton = self.button_box.button(QDialogButtonBox.Help)
+        helpButton = self.helpButton
+        helpButton.setText(self.HELP)
         closeButton = self.button_box.button(QDialogButtonBox.Close)
         closeButton.setText(self.CLOSE)
 
         # Connect signals
         okButton.clicked.connect(self.startWorker)
         cancelButton.clicked.connect(self.killWorker)
+        helpButton.clicked.connect(self.giveHelp)
         closeButton.clicked.connect(self.reject)
         self.cumulative = False
         inpIndexCh = self.InputLayer.currentIndexChanged['QString']
@@ -109,6 +115,14 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.useWeights_cb.setChecked(False)
         self.result = None
     # end of __init__
+
+    def giveHelp(self):
+        self.showInfo('Giving help')
+        #QDesktopServices.openUrl(QUrl.fromLocalFile(
+        #                 self.plugin_dir + "/help/html/index.html"))
+        showPluginHelp(None, "help/html/index")
+    # end of giveHelp
+
 
     def startWorker(self):
         #self.showInfo('Ready to start worker')
@@ -344,13 +358,13 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                 self.useWeights_cb.setChecked(False)
             self.OutputLayerName.setText(
                 "SDE_" +
-                self.method_group.checkedButton().text() +
+                self.method_group.checkedButton().text().strip('"') +
                 "_" + self.InputLayer.currentText())
     # end of layerchanged
 
     def methodChanged(self, button):
         if self.InputLayer.currentText() is not None:
-            self.OutputLayerName.setText("SDE_" + button.text() + "_" +
+            self.OutputLayerName.setText("SDE_" + button.text().strip('"') + "_" +
                                          self.InputLayer.currentText())
         # Disable all options
         self.crimestatcorr_cb.setEnabled(False)
