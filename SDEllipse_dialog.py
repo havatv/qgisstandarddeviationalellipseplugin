@@ -82,7 +82,8 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.method_group = QButtonGroup()
         self.method_group.addButton(self.yuill_rb)
         self.method_group.addButton(self.crimestat_rb)
-        self.method_group.buttonClicked[QAbstractButton].connect(self.methodChanged)
+        self.method_group.buttonClicked[QAbstractButton].connect(
+                                                   self.methodChanged)
         self.yuill_rb.setChecked(True)
         self.method = 1
         okButton = self.button_box.button(QDialogButtonBox.Ok)
@@ -122,7 +123,6 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         #                 self.plugin_dir + "/help/html/index.html"))
         showPluginHelp(None, "help/html/index")
     # end of giveHelp
-
 
     def startWorker(self):
         #self.showInfo('Ready to start worker')
@@ -364,8 +364,8 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
 
     def methodChanged(self, button):
         if self.InputLayer.currentText() is not None:
-            self.OutputLayerName.setText("SDE_" + button.text().strip('"') + "_" +
-                                         self.InputLayer.currentText())
+            self.OutputLayerName.setText("SDE_" + button.text().strip('"') +
+                                         "_" + self.InputLayer.currentText())
         # Disable all options
         self.crimestatcorr_cb.setEnabled(False)
         self.crimestatcorr_cb.setChecked(False)

@@ -57,6 +57,9 @@ help/build/
 # PyBuilder
 target/
 
+# zip files
+*.zip
+
 #
 pb_tool.cfg
 *~
