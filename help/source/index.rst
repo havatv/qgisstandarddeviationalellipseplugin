@@ -103,7 +103,7 @@ Ned Levine: `CrimeStat IV, Part II Spatial Description`_
 
 .. _The Standard Deviational Ellipse; An Updated Tool for Spatial Description: https://www.jstor.org/stable/490885
 .. _Standard Deviational Ellipse code repository: https://github.com/havatv/qgisstandarddeviationalellipseplugin.git
-.. _Standard Deviational Ellipse Plugin: http://arken.umb.no/~havatv/gis/qgisplugins/SDEllipse
+.. _Standard Deviational Ellipse Plugin: http://arken.nmbu.no/~havatv/gis/qgisplugins/SDEllipse
 .. _Standard Deviational Ellipse issues: https://github.com/havatv/qgisstandarddeviationalellipseplugin/issues
 .. |N2| replace:: N\ :sup:`2`
 .. _Confidence Analysis of Standard Deviational Ellipse and Its Extension into Higher Dimensional Euclidean Space: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4358977/
