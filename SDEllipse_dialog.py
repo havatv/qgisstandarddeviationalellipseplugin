@@ -298,6 +298,8 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                     str(self.SDLayer.dataProvider().crs().authid()))
         memSDlayer = QgsVectorLayer(layeruri, self.OutputLayerName.text(),
                                     "memory")
+        # Set the CRS to the original CRS object
+        memSDlayer.setCrs(self.SDLayer.dataProvider().crs())
         memSDlayer.startEditing()  # ?
         for field in sdefields:
             memSDlayer.dataProvider().addAttributes([field])
