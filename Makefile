@@ -3,7 +3,7 @@
 #
 # Create a standard deviational ellipse for a point layer
 #
-#		begin				: 2015-10-01
+#		begin				: 2018-04-03
 #		git sha				: $Format:%H$
 #		copyright			: (C) 2015 by Håvard Tveite
 #		email				: havard.tveite@nmbu.no
@@ -26,13 +26,13 @@
 #Add iso code for any locales you want to support here (space separated)
 # default is no locales
 # LOCALES = no
-LOCALES = nn nb
+LOCALES = "nn nb"
 
 # If locales are enabled, set the name of the lrelease binary on your system. If
 # you have trouble compiling the translations, you may have to specify the full path to
 # lrelease
-#LRELEASE = lrelease
-LRELEASE = lrelease-qt4
+LRELEASE = lrelease
+#LRELEASE = lrelease-qt4
 
 
 # translation
@@ -52,7 +52,7 @@ PY_FILES = \
 
 UI_FILES = SDEllipse.ui
 
-EXTRAS = icon.png metadata.txt
+EXTRAS = sdeicon.png metadata.txt
 
 COMPILED_RESOURCE_FILES = resources_rc.py
 
@@ -69,7 +69,8 @@ PLUGIN_UPLOAD = $(c)/plugin_upload.py
 
 RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
 
-QGISDIR=.qgis2
+#QGISDIR=.qgis2
+QGISDIR=.local/share/QGIS/QGIS3/profiles/default
 
 default: compile
 	
@@ -78,7 +79,7 @@ compile: $(COMPILED_RESOURCE_FILES)
 	
 
 %_rc.py : %.qrc $(RESOURCES_SRC)
-	pyrcc4 -o $*_rc.py  $<
+	pyrcc5 -o $*_rc.py  $<
 
 %.qm : %.ts
 	$(LRELEASE) $<

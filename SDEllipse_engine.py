@@ -1,9 +1,31 @@
 # -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+ SDEllipse_engine
+                                 A QGIS plugin
+ Create a standard deviational ellipse for a point layer
+                              -------------------
+        begin                : 2018-04-03
+        git sha              : $Format:%H$
+        copyright            : (C) 2018 by Håvard Tveite, NMBU
+        email                : havard.tveite@nmbu.no
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
 from math import sqrt, pow, sin, cos, atan, pi
-from PyQt4 import QtCore
-from PyQt4.QtCore import QCoreApplication, QPyNullVariant
-from qgis.core import QGis
-from qgis.core import QgsVectorLayer
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QCoreApplication
+#from PyQt4.QtCore import QPyNullVariant
+#from qgis.core import QGis
+#from qgis.core import QgsVectorLayer
 
 
 class Worker(QtCore.QObject):
@@ -104,8 +126,8 @@ class Worker(QtCore.QObject):
                 # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
-                if isinstance(weight, QPyNullVariant):
-                    continue
+                #if isinstance(weight, QPyNullVariant):
+                #    continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
                 sumx = sumx + geom.x() * theweight
@@ -144,8 +166,8 @@ class Worker(QtCore.QObject):
                 # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
-                if isinstance(weight, QPyNullVariant):
-                    continue
+                #if isinstance(weight, QPyNullVariant):
+                #    continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
                 xm = geom.x() - self.meanx
@@ -206,8 +228,8 @@ class Worker(QtCore.QObject):
                 # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
-                if isinstance(weight, QPyNullVariant):
-                    continue
+                #if isinstance(weight, QPyNullVariant):
+                #    continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
                 xm = geom.x() - self.meanx

@@ -5,9 +5,9 @@
                                  A QGIS plugin
  Create a standard deviational ellipse for a point layer
                               -------------------
-        begin                : 2016-05-20
+        begin                : 2018-04-03
         git sha              : $Format:%H$
-        copyright            : (C) 2016 by Håvard Tveite, NMBU
+        copyright            : (C) 2018 by Håvard Tveite, NMBU
         email                : havard.tveite@nmbu.no
  ***************************************************************************/
 
@@ -20,15 +20,19 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion
-from PyQt4.QtCore import QCoreApplication, QFileInfo
-from PyQt4.QtGui import QAction, QIcon
-from qgis.core import QGis, QgsMapLayer
+import os.path
+from qgis.core import QgsProject, QgsMapLayer, QgsWkbTypes
+from qgis.PyQt.QtCore import QFileInfo, QSettings, QCoreApplication
+from qgis.PyQt.QtCore import QTranslator, qVersion
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction, QMessageBox
+
+import sys
+sys.path.append(os.path.dirname(__file__))
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
-from SDEllipse_dialog import SDEllipseDialog
-import os.path
+from .SDEllipse_dialog import SDEllipseDialog
 
 
 # The following user interface components are referenced (in run()):
@@ -65,7 +69,7 @@ class SDEllipse:
         self.dlg = SDEllipseDialog(self.iface)
 
         # Declare instance attributes
-        self.menu = self.tr(u'&Standard deviational ellipse')
+        self.menuname = self.tr(u'&Standard deviational ellipse')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -84,11 +88,11 @@ class SDEllipse:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-        icon_path = ':/plugins/SDEllipse/icon.png'
+        icon_path = os.path.join(os.path.dirname(__file__), "sdeicon.png")
         # Create action that will start plugin configuration
         self.action = QAction(
             QIcon(icon_path),
-            self.menu, self.iface.mainWindow())
+            self.menuname, self.iface.mainWindow())
         # connect the action to the run method
         self.action.triggered.connect(self.run)
         # Add toolbar icon
@@ -98,17 +102,17 @@ class SDEllipse:
             self.iface.addToolBarIcon(self.action)
         # Add menu item
         if hasattr(self.iface, 'addPluginToVectorMenu'):
-            self.iface.addPluginToVectorMenu(self.menu, self.action)
+            self.iface.addPluginToVectorMenu(self.menuname, self.action)
         else:
-            self.iface.addPluginToMenu(self.menu, self.action)
+            self.iface.addPluginToMenu(self.menuname, self.action)
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         # Remove the plugin menu item
         if hasattr(self.iface, 'removePluginVectorMenu'):
-            self.iface.removePluginVectorMenu(self.menu, self.action)
+            self.iface.removePluginVectorMenu(self.menuname, self.action)
         else:
-            self.iface.removePluginMenu(self.menu, self.action)
+            self.iface.removePluginMenu(self.menuname, self.action)
         # Remove the plugin toolbar icon
         if hasattr(self.iface, 'removeVectorToolBarIcon'):
             self.iface.removeVectorToolBarIcon(self.action)
@@ -116,19 +120,30 @@ class SDEllipse:
             self.iface.removeToolBarIcon(self.action)
 
     def run(self):
+        """Run method that performs all the real work"""
         # Do some initialisations
         # The progressbar
         self.dlg.progressBar.setValue(0.0)
-        # The input layer
+
+        # Prepare for sorting
+        layers = QgsProject.instance().mapLayers()
+        layerslist = []
+        for id in layers.keys():
+            if layers[id].type() == QgsMapLayer.VectorLayer:
+                if not layers[id].isValid():
+                    QMessageBox.information(None,
+                        self.tr('Information'),
+                        'Layer ' + layers[id].name() + ' is not valid')
+                else:
+                    if (layers[id].geometryType() == QgsWkbTypes.PointGeometry):
+                        layerslist.append((layers[id].name(), id))
+        # Sort the layers by name
+        layerslist.sort(key=lambda x: x[0], reverse=False)
+
+        # Add to the input layer combobox
         self.dlg.InputLayer.clear()
-        for alayer in self.iface.legendInterface().layers():
-            # Look for vector point layers
-            if (alayer.type() == QgsMapLayer.VectorLayer and
-                      (alayer.wkbType() == QGis.WKBPoint
-                       or alayer.wkbType() == QGis.WKBPoint25D
-                       #or alayer.wkbType() == QGis.WKBMultiPoint
-               )):
-                self.dlg.InputLayer.addItem(alayer.name(), alayer.id())
-        """Run method that performs all the real work"""
+        for layerdescription in layerslist:
+            self.dlg.InputLayer.addItem(layerdescription[0],
+                                            layerdescription[1])
         # show the dialog
         self.dlg.show()

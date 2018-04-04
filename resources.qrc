@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/plugins/SDEllipse" >
-        <file>icon.png</file>
+        <file>sdeicon.png</file>
     </qresource>
 </RCC>

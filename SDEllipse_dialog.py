@@ -5,9 +5,9 @@
                                  A QGIS plugin
  Create standard deviational ellipse
                              -------------------
-        begin                : 2016-05-20
+        begin                : 2018-04-03
         git sha              : $Format:%H$
-        copyright            : (C) 2016 by Håvard Tveite, NMBU
+        copyright            : (C) 2018 by Håvard Tveite, NMBU
         email                : havard.tveite@nmbu.no
  ***************************************************************************/
 
@@ -35,22 +35,33 @@ import os
 import csv
 
 from math import pow, log, sin, cos, pi, sqrt
-from PyQt4 import uic
-from PyQt4.QtCore import SIGNAL, QObject, QThread, QCoreApplication
-from PyQt4.QtCore import QPointF, QLineF, QRectF, QSettings
-from PyQt4.QtCore import QPyNullVariant, Qt, QVariant
-from PyQt4.QtGui import QDialog, QDialogButtonBox, QFileDialog
-from PyQt4.QtGui import QGraphicsLineItem, QGraphicsRectItem
-from PyQt4.QtGui import QGraphicsTextItem
-from PyQt4.QtGui import QGraphicsScene, QBrush, QPen, QColor
-from PyQt4.QtGui import QGraphicsView
-from PyQt4.QtGui import QButtonGroup
-from PyQt4.QtGui import QAbstractButton
-from qgis.core import QgsMessageLog, QgsMapLayerRegistry, QgsMapLayer
-from qgis.core import QGis, QgsPoint, QgsFeature, QgsGeometry, QgsVectorLayer
-from qgis.core import *
-from qgis.gui import QgsMessageBar
-from qgis.utils import showPluginHelp
+
+from qgis.PyQt import uic
+from qgis.PyQt.QtCore import QObject, QThread, QCoreApplication
+from qgis.PyQt.QtCore import QPointF, QLineF, QRectF, QSettings, Qt
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtGui import QDesktopServices
+#from PyQt4.QtCore import QPyNullVariant
+from qgis.PyQt.QtWidgets import QFileDialog
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
+
+from qgis.PyQt.QtWidgets import QGraphicsLineItem, QGraphicsRectItem
+from qgis.PyQt.QtWidgets import QGraphicsTextItem
+from qgis.PyQt.QtWidgets import QGraphicsScene, QGraphicsView
+from qgis.PyQt.QtGui import QBrush, QPen, QColor
+from qgis.PyQt.QtWidgets import QButtonGroup, QAbstractButton
+
+
+from qgis.core import QgsMessageLog, QgsMapLayer, QgsFeature
+from qgis.core import QgsProject
+from qgis.core import Qgis, QgsVectorLayer
+from qgis.core import QgsPointXY, QgsGeometry
+from qgis.core import QgsField
+#from qgis.core import *
+#?from qgis.gui import QgsMessageBar
+#?from qgis.utils import showPluginHelp
+
 from SDEllipse_engine import Worker
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -105,8 +116,9 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.cumulative = False
         inpIndexCh = self.InputLayer.currentIndexChanged['QString']
         inpIndexCh.connect(self.layerchanged)
-        QObject.disconnect(self.button_box, SIGNAL("rejected()"),
-                           self.reject)
+        #QObject.disconnect(self.button_box, SIGNAL("rejected()"),
+        #                   self.reject)
+        self.button_box.rejected.disconnect(self.reject)
 
         # Set instance variables
         self.worker = None
@@ -119,9 +131,9 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
 
     def giveHelp(self):
         self.showInfo('Giving help')
-        #QDesktopServices.openUrl(QUrl.fromLocalFile(
-        #                 self.plugin_dir + "/help/html/index.html"))
-        showPluginHelp(None, "help/html/index")
+        QDesktopServices.openUrl(QUrl.fromLocalFile(
+                         self.plugin_dir + "/help/html/index.html"))
+        #showPluginHelp(None, "help/html/index")
     # end of giveHelp
 
     def startWorker(self):
@@ -131,7 +143,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         # Get the input layer
         layerindex = self.InputLayer.currentIndex()
         layerId = self.InputLayer.itemData(layerindex)
-        inputlayer = QgsMapLayerRegistry.instance().mapLayer(layerId)
+        inputlayer = QgsProject.instance().mapLayer(layerId)
         self.featureCount = 0
         if self.selectedFeatures_cb.isChecked():
             self.featureCount = inputlayer.selectedFeatureCount()
@@ -222,21 +234,19 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
 
     def workerError(self, exception_string):
         """Report an error from the worker."""
-        self.showError(exception_string)
+        self.showError(self.tr('Worker failed - exception') +
+                               ': ' + exception_string)
 
     def workerInfo(self, message_string):
         """Report an info message from the worker."""
-        QgsMessageLog.logMessage(self.tr('Worker') + ': ' +
-                                 message_string,
-                                 self.SDELLIPSE,
-                                 QgsMessageLog.INFO)
+        self.showInfo(self.tr('Worker') + ': ' + message_string)
 
     def killWorker(self):
         """Kill the worker thread."""
         if self.worker is not None:
             QgsMessageLog.logMessage(self.tr('Killing worker'),
                                      self.SDELLIPSE,
-                                     QgsMessageLog.INFO)
+                                     Qgis.Info)
             self.worker.kill()
 
     # Implement the reject method to have the possibility to avoid
@@ -313,16 +323,16 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                          minorSD * sin(t) * sin(majoraxisangle),
                          meany + majorSD * cos(t) * sin(majoraxisangle) +
                          minorSD * sin(t) * cos(majoraxisangle))
-            points.append(QgsPoint(p1))
+            points.append(QgsPointXY(p1))
             t = t + step
-        sdfeature.setGeometry(QgsGeometry.fromPolygon([points]))
+        sdfeature.setGeometry(QgsGeometry.fromPolygonXY([points]))
         attrs = [meanx, meany, majoraxisangle, direction,
                  majorSD, minorSD, eccentricity]
         sdfeature.setAttributes(attrs)
         memSDlayer.dataProvider().addFeatures([sdfeature])
         memSDlayer.commitChanges()  # ?
         memSDlayer.updateExtents()
-        QgsMapLayerRegistry.instance().addMapLayers([memSDlayer])
+        QgsProject.instance().addMapLayers([memSDlayer])
     # end of drawEllipse
 
     def layerchanged(self, number=0):
@@ -332,7 +342,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         layerindex = self.InputLayer.currentIndex()
         layerId = self.InputLayer.itemData(layerindex)
         self.inputlayerid = layerId
-        inputlayer = QgsMapLayerRegistry.instance().mapLayer(layerId)
+        inputlayer = QgsProject.instance().mapLayer(layerId)
         while self.inputField.count() > 0:
             self.inputField.removeItem(0)
         self.useWeights_cb.setEnabled(False)
@@ -347,7 +357,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                 for i in range(attribs.count()):
                     atr[i] = attribs.at(i)
                 attrdict = atr
-            for id, attrib in attrdict.iteritems():
+            for id, attrib in attrdict.items():
                 # Check for numeric attribute
                 if attrib.typeName().upper() in ('REAL', 'INTEGER', 'INT4',
                                                  'INT8', 'FLOAT4'):
@@ -392,30 +402,30 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
 
     def showError(self, text):
         """Show an error."""
-        self.iface.messageBar().pushMessage(self.tr('Error'), text,
-                                            level=QgsMessageBar.CRITICAL,
-                                            duration=3)
+        #self.iface.messageBar().pushMessage(self.tr('Error'), text,
+        #                                    level=QgsMessageBar.CRITICAL,
+        #                                    duration=3)
         QgsMessageLog.logMessage('Error: ' + text,
                                  self.SDELLIPSE,
-                                 QgsMessageLog.CRITICAL)
+                                 Qgis.Critical)
 
     def showWarning(self, text):
         """Show a warning."""
-        self.iface.messageBar().pushMessage(self.tr('Warning'), text,
-                                            level=QgsMessageBar.WARNING,
-                                            duration=2)
+        #self.iface.messageBar().pushMessage(self.tr('Warning'), text,
+        #                                    level=QgsMessageBar.WARNING,
+        #                                    duration=2)
         QgsMessageLog.logMessage('Warning: ' + text,
                                  self.SDELLIPSE,
-                                 QgsMessageLog.WARNING)
+                                 Qgis.Warning)
 
     def showInfo(self, text):
         """Show info."""
-        self.iface.messageBar().pushMessage(self.tr('Info'), text,
-                                            level=QgsMessageBar.INFO,
-                                            duration=2)
+        #self.iface.messageBar().pushMessage(self.tr('Info'), text,
+        #                                    level=QgsMessageBar.INFO,
+        #                                    duration=2)
         QgsMessageLog.logMessage('Info: ' + text,
                                  self.SDELLIPSE,
-                                 QgsMessageLog.INFO)
+                                 Qgis.Info)
 
     # Implement the accept method to avoid exiting the dialog when
     # starting the work

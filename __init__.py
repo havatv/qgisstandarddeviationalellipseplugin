@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Create a standard deviational histogram from a point layer.
                              -------------------
-        begin                : 2016-05-20
-        copyright            : (C) 2016 by Håvard Tveite
+        begin                : 2018-04-03
+        copyright            : (C) 2018 by Håvard Tveite
         email                : havard.tveite@nmbu.no
         git sha              : $Format:%H$
  ***************************************************************************/
