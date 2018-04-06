@@ -39,7 +39,8 @@ Functionality
   the major axis), minorsd (SD along the minor axis that is normal
   to the major axis), majorangle(rad) (major axis angle in radians
   counter-clockwise relative to x/east), directiond(eg) ("compass"
-  direction - degrees clockwise relative to north) and eccentricity.
+  direction - degrees clockwise relative to north) and eccentricity
+  (sqrt(1-b²/a²)).
 
 Options
 =============
@@ -72,9 +73,16 @@ is performed in a separate thread.
 
 Versions
 ===============
-The current version is 1.2.
+The current version is 3.0.
 
-- 1.2: Added "compass" direction for the major axis and eccentricity.
+- 3.0: Update to the QGIS 3.0 API.
+  UI rearranged.
+
+- 1.2.1: Added a help button and removed double quotes from the
+  output layer name.
+
+- 1.2: Added "compass" direction (for the major axis) and
+  eccentricity.
   Fixed DOF calculations.
   User interface and robustness improvements.
 

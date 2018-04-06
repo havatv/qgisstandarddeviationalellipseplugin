@@ -13,7 +13,8 @@ about=A standard deviational ellipse is produced according to two methods, with 
 # Optional items:
 # Uncomment the following line and add your changelog:
 changelog=3.0.0
-    -- QGIS 3 version
+    -- Update to the QGIS 3 API
+    -- UI rearranged
     1.2.1
     -- Added a help button and removed double quotes from the output layer name
     1.2
