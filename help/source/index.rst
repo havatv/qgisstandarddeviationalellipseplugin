@@ -77,6 +77,7 @@ The current version is 1.2.
 - 1.2: Added "compass" direction for the major axis and eccentricity.
   Fixed DOF calculations.
   User interface and robustness improvements.
+  Close the SDE polygon to make it valid.
 
 - 1.1: Added the CrimeStat option.
   Added some more options and modified the user interface.
