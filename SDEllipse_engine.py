@@ -23,9 +23,9 @@
 from math import sqrt, pow, sin, cos, atan, pi
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QCoreApplication
-#from PyQt4.QtCore import QPyNullVariant
-#from qgis.core import QGis
-#from qgis.core import QgsVectorLayer
+# from PyQt4.QtCore import QPyNullVariant
+# from qgis.core import QGis
+# from qgis.core import QgsVectorLayer
 
 
 class Worker(QtCore.QObject):
@@ -126,8 +126,8 @@ class Worker(QtCore.QObject):
                 # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
-                #if isinstance(weight, QPyNullVariant):
-                #    continue
+                # if isinstance(weight, QPyNullVariant):
+                #     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
                 sumx = sumx + geom.x() * theweight
@@ -166,8 +166,8 @@ class Worker(QtCore.QObject):
                 # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
-                #if isinstance(weight, QPyNullVariant):
-                #    continue
+                # if isinstance(weight, QPyNullVariant):
+                #     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
                 xm = geom.x() - self.meanx
@@ -194,12 +194,12 @@ class Worker(QtCore.QObject):
             self.theta2 = atan(tantheta2)
             # Find sigma1 and sigma2 according to Wang et.al.
             # "Spectral decomposition"
-            #self.sigma1 = sqrt(((x2w + y2w) + top2) / (2 * sumweight))
-            #self.sigma2 = sqrt(((x2w + y2w) - top2) / (2 * sumweight))
+            # self.sigma1 = sqrt(((x2w + y2w) + top2) / (2 * sumweight))
+            # self.sigma2 = sqrt(((x2w + y2w) - top2) / (2 * sumweight))
             # CrimeStat / aspace uses clockwise angles from north:
-            #if self.method == 2:
-            #    self.theta1 = atan(-tantheta1)
-            #    self.theta2 = atan(-tantheta2)
+            # if self.method == 2:
+            #     self.theta1 = atan(-tantheta1)
+            #     self.theta2 = atan(-tantheta2)
 
             # Could this be skipped if we use the Wang calculations?
             # How to find the angle of the major axis?
@@ -228,14 +228,14 @@ class Worker(QtCore.QObject):
                 # Check if the value is meaningful - skip if not
                 if weight is None:
                     continue
-                #if isinstance(weight, QPyNullVariant):
-                #    continue
+                # if isinstance(weight, QPyNullVariant):
+                #     continue
                 theweight = float(weight)
                 geom = feat.geometry().asPoint()
                 xm = geom.x() - self.meanx
                 ym = geom.y() - self.meany
+                # if self.method == 1: # Yuill - OK
                 if self.method == 1 or self.method == 2:  # Yuill/CrimeStat OK
-                #if self.method == 1: # Yuill - OK
                     # Angles counter-clockwise relative to the x axis
                     angleterm1 = (angleterm1 +
                                   pow(ym * cos(self.theta1) -
@@ -245,31 +245,31 @@ class Worker(QtCore.QObject):
                                   pow(ym * cos(self.theta2) -
                                       xm * sin(self.theta2), 2) *
                                   theweight)
-                #if self.method == 2:
-                #    # Crimestat / aspace - OK (angles clockwise relative
-                #    # to north):
-                #    sxterm = (sxterm +
-                #          pow(xm * cos(self.theta1) -
-                #              ym * sin(self.theta1), 2) *
-                #          theweight)
-                #    syterm = (syterm +
-                #          pow(xm * sin(self.theta1) +
-                #              ym * cos(self.theta1), 2) *
+                # if self.method == 2:
+                #     # Crimestat / aspace - OK (angles clockwise relative
+                #     # to north):
+                #     sxterm = (sxterm +
+                #           pow(xm * cos(self.theta1) -
+                #               ym * sin(self.theta1), 2) *
                 #           theweight)
+                #     syterm = (syterm +
+                #           pow(xm * sin(self.theta1) +
+                #               ym * cos(self.theta1), 2) *
+                #            theweight)
                 sumweight = sumweight + theweight
                 self.calculate_progress()
+            # if self.method == 1:  # Yuill - OK
             if self.method == 1 or self.method == 2:  # Yuill/CrimeStat
-            #if self.method == 1:  # Yuill - OK
                 self.SD1 = sqrt(angleterm1 / sumweight)
                 self.SD2 = sqrt(angleterm2 / sumweight)
-            #elif self.method == 2:  # crimestat
-            #    self.SD1 = sqrt(2 * syterm / (sumweight - 2))
-            #    self.SD2 = sqrt(2 * sxterm / (sumweight - 2))
-            #    # Fix angles to be relative to the first axis
-            #    self.theta1 = atan(tantheta1)
-            #    self.theta2 = atan(tantheta2)
-            #self.status.emit('SD1: ' + str(self.SD1) + ' SD2: '
-            #                 + str(self.SD2))
+            # elif self.method == 2:  # crimestat
+            #     self.SD1 = sqrt(2 * syterm / (sumweight - 2))
+            #     self.SD2 = sqrt(2 * sxterm / (sumweight - 2))
+            #     # Fix angles to be relative to the first axis
+            #     self.theta1 = atan(tantheta1)
+            #     self.theta2 = atan(tantheta2)
+            # self.status.emit('SD1: ' + str(self.SD1) + ' SD2: '
+            #                  + str(self.SD2))
         except:
             import traceback
             self.error.emit(traceback.format_exc())

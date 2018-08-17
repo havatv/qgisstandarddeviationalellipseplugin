@@ -42,7 +42,7 @@ from qgis.PyQt.QtCore import QPointF, QLineF, QRectF, QSettings, Qt
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtGui import QDesktopServices
-#from PyQt4.QtCore import QPyNullVariant
+# from PyQt4.QtCore import QPyNullVariant
 from qgis.PyQt.QtWidgets import QFileDialog
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 
@@ -58,9 +58,9 @@ from qgis.core import QgsProject
 from qgis.core import Qgis, QgsVectorLayer
 from qgis.core import QgsPointXY, QgsGeometry
 from qgis.core import QgsField
-#from qgis.core import *
-#?from qgis.gui import QgsMessageBar
-#?from qgis.utils import showPluginHelp
+# from qgis.core import *
+# ?from qgis.gui import QgsMessageBar
+# ?from qgis.utils import showPluginHelp
 
 from SDEllipse_engine import Worker
 
@@ -102,7 +102,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         cancelButton = self.button_box.button(QDialogButtonBox.Cancel)
         cancelButton.setText(self.CANCEL)
         cancelButton.setEnabled(False)
-        #helpButton = self.button_box.button(QDialogButtonBox.Help)
+        # helpButton = self.button_box.button(QDialogButtonBox.Help)
         helpButton = self.helpButton
         helpButton.setText(self.HELP)
         closeButton = self.button_box.button(QDialogButtonBox.Close)
@@ -116,8 +116,8 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.cumulative = False
         inpIndexCh = self.InputLayer.currentIndexChanged['QString']
         inpIndexCh.connect(self.layerchanged)
-        #QObject.disconnect(self.button_box, SIGNAL("rejected()"),
-        #                   self.reject)
+        # QObject.disconnect(self.button_box, SIGNAL("rejected()"),
+        #                    self.reject)
         self.button_box.rejected.disconnect(self.reject)
 
         # Set instance variables
@@ -133,11 +133,11 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.showInfo('Giving help')
         QDesktopServices.openUrl(QUrl.fromLocalFile(
                          self.plugin_dir + "/help/html/index.html"))
-        #showPluginHelp(None, "help/html/index")
+        # showPluginHelp(None, "help/html/index")
     # end of giveHelp
 
     def startWorker(self):
-        #self.showInfo('Ready to start worker')
+        # self.showInfo('Ready to start worker')
         self.degfreedCorr = self.degfreedcorr_cb.isChecked()
         self.crimestatCorr = self.crimestatcorr_cb.isChecked()
         # Get the input layer
@@ -154,7 +154,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             return
         if self.featureCount < 2:
             self.showError(self.tr('Not enough features'))
-            #self.scene.clear()
+            # self.scene.clear()
             return
         if (self.useWeights_cb.isChecked() and
                  self.inputField.count() == 0):
@@ -162,8 +162,8 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             return
         fieldindex = self.inputField.currentIndex()
         fieldname = self.inputField.itemData(fieldindex)
-        #inpfield = inputlayer.fieldNameIndex(fieldindex)
-        #minval = inputlayer.minimumValue(inpfield)
+        # inpfield = inputlayer.fieldNameIndex(fieldindex)
+        # minval = inputlayer.minimumValue(inpfield)
 
         if (not self.useWeights_cb.isChecked()):
             fieldname = None
@@ -189,7 +189,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         worker.error.connect(self.workerError)
         worker.status.connect(self.workerInfo)
         worker.progress.connect(self.progressBar.setValue)
-        #worker.progress.connect(self.aprogressBar.setValue)
+        # worker.progress.connect(self.aprogressBar.setValue)
         thread.started.connect(worker.run)
         thread.start()
         self.thread = thread
@@ -210,9 +210,9 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         self.thread.wait()
         self.thread.deleteLater()
         # remove widget from the message bar (pop)
-        #self.iface.messageBar().popWidget(self.messageBar)
+        # self.iface.messageBar().popWidget(self.messageBar)
         if ok and ret is not None:
-            #self.showInfo("Result: " + str(ret))
+            # self.showInfo("Result: " + str(ret))
             self.result = ret
             # Draw the ellipse
             self.drawEllipse()
@@ -257,7 +257,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         QDialog.reject(self)
 
     def drawEllipse(self):
-        #self.showInfo('Result: ' + str(self.result))
+        # self.showInfo('Result: ' + str(self.result))
         meanx = self.result[0]
         meany = self.result[1]
         angle1 = self.result[2]
@@ -277,8 +277,8 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         if self.degfreedCorr and self.method != 2:
             SD1 = SD1 * sqrt(self.featureCount) / sqrt(self.featureCount - 2)
             SD2 = SD2 * sqrt(self.featureCount) / sqrt(self.featureCount - 2)
-            #SD1 = SD1 * sqrt(self.featureCount) / sqrt(self.featureCount - 1)
-            #SD2 = SD2 * sqrt(self.featureCount) / sqrt(self.featureCount - 1)
+            # SD1 = SD1 * sqrt(self.featureCount) / sqrt(self.featureCount - 1)
+            # SD2 = SD2 * sqrt(self.featureCount) / sqrt(self.featureCount - 1)
         # Find the major and minor axis
         majoraxisangle = angle1
         minoraxisangle = angle2
@@ -298,7 +298,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         sdefields.append(QgsField("meanx", QVariant.Double))
         sdefields.append(QgsField("meany", QVariant.Double))
         sdefields.append(QgsField("majoranglerad", QVariant.Double))
-        #sdefields.append(QgsField("minoranglerad", QVariant.Double))
+        # sdefields.append(QgsField("minoranglerad", QVariant.Double))
         sdefields.append(QgsField("directiondeg", QVariant.Double))
         sdefields.append(QgsField("majorsd", QVariant.Double))
         sdefields.append(QgsField("minorsd", QVariant.Double))
@@ -406,27 +406,27 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
 
     def showError(self, text):
         """Show an error."""
-        #self.iface.messageBar().pushMessage(self.tr('Error'), text,
-        #                                    level=QgsMessageBar.CRITICAL,
-        #                                    duration=3)
+        # self.iface.messageBar().pushMessage(self.tr('Error'), text,
+        #                                     level=QgsMessageBar.CRITICAL,
+        #                                     duration=3)
         QgsMessageLog.logMessage('Error: ' + text,
                                  self.SDELLIPSE,
                                  Qgis.Critical)
 
     def showWarning(self, text):
         """Show a warning."""
-        #self.iface.messageBar().pushMessage(self.tr('Warning'), text,
-        #                                    level=QgsMessageBar.WARNING,
-        #                                    duration=2)
+        # self.iface.messageBar().pushMessage(self.tr('Warning'), text,
+        #                                     level=QgsMessageBar.WARNING,
+        #                                     duration=2)
         QgsMessageLog.logMessage('Warning: ' + text,
                                  self.SDELLIPSE,
                                  Qgis.Warning)
 
     def showInfo(self, text):
         """Show info."""
-        #self.iface.messageBar().pushMessage(self.tr('Info'), text,
-        #                                    level=QgsMessageBar.INFO,
-        #                                    duration=2)
+        # self.iface.messageBar().pushMessage(self.tr('Info'), text,
+        #                                     level=QgsMessageBar.INFO,
+        #                                     duration=2)
         QgsMessageLog.logMessage('Info: ' + text,
                                  self.SDELLIPSE,
                                  Qgis.Info)
@@ -459,9 +459,9 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
     # Overriding
     def resizeEvent(self, event):
         return
-        #self.showInfo("resizeEvent")
+        # self.showInfo("resizeEvent")
 
     # Overriding
     def showEvent(self, event):
         return
-        #self.showInfo("showEvent")
+        # self.showInfo("showEvent")

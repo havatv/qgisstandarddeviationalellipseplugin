@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import sys
 import os.path
 from qgis.core import QgsProject, QgsMapLayer, QgsWkbTypes
 from qgis.PyQt.QtCore import QFileInfo, QSettings, QCoreApplication
@@ -27,7 +28,6 @@ from qgis.PyQt.QtCore import QTranslator, qVersion
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 
-import sys
 sys.path.append(os.path.dirname(__file__))
 # Initialize Qt resources from file resources.py
 import resources_rc
@@ -135,7 +135,8 @@ class SDEllipse:
                         self.tr('Information'),
                         'Layer ' + layers[id].name() + ' is not valid')
                 else:
-                    if (layers[id].geometryType() == QgsWkbTypes.PointGeometry):
+                    if (layers[id].geometryType() ==
+                            QgsWkbTypes.PointGeometry):
                         layerslist.append((layers[id].name(), id))
         # Sort the layers by name
         layerslist.sort(key=lambda x: x[0], reverse=False)
