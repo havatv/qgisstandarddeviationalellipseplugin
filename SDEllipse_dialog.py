@@ -317,7 +317,7 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
             t = t + step
         # Close the polygon
         p1 = QPointF(meanx + majorSD * cos(majoraxisangle),
-                         meany + majorSD * sin(majoraxisangle))
+                     meany + majorSD * sin(majoraxisangle))
         points.append(QgsPoint(p1))
         sdfeature.setGeometry(QgsGeometry.fromPolygon([points]))
         attrs = [meanx, meany, majoraxisangle, direction,
