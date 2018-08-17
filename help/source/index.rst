@@ -77,6 +77,7 @@ The current version is 3.0.
 
 - 3.0: Update to the QGIS 3.0 API.
   UI rearranged.
+  Close the SDE polygon to make it valid.
 
 - 1.2.1: Added a help button and removed double quotes from the
   output layer name.

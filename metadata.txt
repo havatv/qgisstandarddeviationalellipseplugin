@@ -12,7 +12,9 @@ about=A standard deviational ellipse is produced according to two methods, with 
 
 # Optional items:
 # Uncomment the following line and add your changelog:
-changelog=3.0.0
+changelog=3.0.1
+    -- Close SDE polygon to make it valid (#6)
+    3.0.0
     -- Update to the QGIS 3 API
     -- UI rearranged
     1.2.1
