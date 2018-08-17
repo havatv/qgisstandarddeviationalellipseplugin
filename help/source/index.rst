@@ -102,6 +102,26 @@ Jianxin Gong: `Clarifying the Standard Deviational Ellipse`_
 
 Ned Levine: `CrimeStat IV, Part II Spatial Description`_
 
+
+Citation
+==========
+
+Would you like to cite / reference this plugin?
+
+Tveite, H. (2016). The QGIS Standard Deviational Ellipse Plugin. http://plugins.qgis.org/plugins/SDEllipse/.
+
+Bibtex:
+
+.. code-block:: html
+
+  @misc{tveitesde,
+    author =   {Håvard Tveite},
+    title =    {The {QGIS} {Standard} {Deviational} {Ellipse} Plugin},
+    howpublished = {\url{http://plugins.qgis.org/plugins/SDEllipse/}},
+    year = {2016--2018}
+  }
+
+
 .. _The Standard Deviational Ellipse; An Updated Tool for Spatial Description: https://www.jstor.org/stable/490885
 .. _Standard Deviational Ellipse code repository: https://github.com/havatv/qgisstandarddeviationalellipseplugin.git
 .. _Standard Deviational Ellipse Plugin: http://arken.nmbu.no/~havatv/gis/qgisplugins/SDEllipse
