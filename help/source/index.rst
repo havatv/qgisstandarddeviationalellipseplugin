@@ -116,7 +116,7 @@ Citation
 
 Would you like to cite / reference this plugin?
 
-Tveite, H. (2018). The QGIS Standard Deviational Ellipse Plugin. http://plugins.qgis.org/plugins/SDEllipse/.
+Tveite, H. (2016). The QGIS Standard Deviational Ellipse Plugin. http://plugins.qgis.org/plugins/SDEllipse/.
 
 Bibtex:
 
