@@ -112,7 +112,7 @@ Tveite, H. (2016). The QGIS Standard Deviational Ellipse Plugin. http://plugins.
 
 Bibtex:
 
-.. code-block:: html
+.. code-block:: latex
 
   @misc{tveitesde,
     author =   {Håvard Tveite},
