@@ -1,6 +1,6 @@
 [general]
 name=Standard Deviational Ellipse
-version=3.0.1
+version=3.0.2
 qgisMinimumVersion=2.99
 qgisMaximumVersion=3.98
 description=Create a standard deviational ellipse for a set of points
@@ -12,7 +12,10 @@ about=A standard deviational ellipse is produced according to two methods, with 
 
 # Optional items:
 # Uncomment the following line and add your changelog:
-changelog=3.0.1
+changelog=3.0.2
+    -- Fix icon not showing in toolbar (#7)
+    -- Fix help not showing (#8)
+    3.0.1
     -- Close SDE polygon to make it valid (#6)
     3.0.0
     -- Update to the QGIS 3 API
