@@ -32,7 +32,6 @@ LOCALES = "nn nb"
 # you have trouble compiling the translations, you may have to specify the full path to
 # lrelease
 LRELEASE = lrelease
-#LRELEASE = lrelease-qt4
 
 
 # translation
@@ -54,9 +53,9 @@ UI_FILES = SDEllipse.ui
 
 EXTRAS = sdeicon.png metadata.txt
 
-COMPILED_RESOURCE_FILES = resources_rc.py
+COMPILED_RESOURCE_FILES = resources.py
 
-PEP8EXCLUDE=pydev,resources_rc.py,conf.py,third_party,ui,scripts,plugin_upload.py
+PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui,scripts,plugin_upload.py
 
 
 #################################################
@@ -69,7 +68,6 @@ PLUGIN_UPLOAD = $(c)/plugin_upload.py
 
 RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
 
-#QGISDIR=.qgis2
 QGISDIR=.local/share/QGIS/QGIS3/profiles/default
 
 default: compile
@@ -78,8 +76,8 @@ default: compile
 compile: $(COMPILED_RESOURCE_FILES)
 	
 
-%_rc.py : %.qrc $(RESOURCES_SRC)
-	pyrcc5 -o $*_rc.py  $<
+%.py : %.qrc $(RESOURCES_SRC)
+	pyrcc5 -o $*.py  $<
 
 %.qm : %.ts
 	$(LRELEASE) $<
@@ -118,6 +116,7 @@ deploy: compile doc transcompile
 	cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/data
 	cp -vf data/points.csv $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/data
+	mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
 	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
 
 # The dclean target removes compiled python files from plugin directory

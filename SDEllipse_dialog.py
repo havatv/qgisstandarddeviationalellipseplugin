@@ -62,7 +62,7 @@ from qgis.core import QgsField
 # ?from qgis.gui import QgsMessageBar
 # ?from qgis.utils import showPluginHelp
 
-from SDEllipse_engine import Worker
+from .SDEllipse_engine import Worker
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'SDEllipse.ui'))
@@ -144,14 +144,14 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
         layerindex = self.InputLayer.currentIndex()
         layerId = self.InputLayer.itemData(layerindex)
         inputlayer = QgsProject.instance().mapLayer(layerId)
+        if inputlayer is None:
+            self.showError(self.tr('No input layer defined'))
+            return
         self.featureCount = 0
         if self.selectedFeatures_cb.isChecked():
             self.featureCount = inputlayer.selectedFeatureCount()
         if self.featureCount == 0:
             self.featureCount = inputlayer.featureCount()
-        if inputlayer is None:
-            self.showError(self.tr('No input layer defined'))
-            return
         if self.featureCount < 2:
             self.showError(self.tr('Not enough features'))
             # self.scene.clear()
