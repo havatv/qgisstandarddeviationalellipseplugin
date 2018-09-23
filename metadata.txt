@@ -12,7 +12,9 @@ about=A standard deviational ellipse is produced according to two methods, with 
 
 # Optional items:
 # Uncomment the following line and add your changelog:
-changelog=3.0.2
+changelog=3.0.3
+    -- Fixed issue with integer fields from Shapefile format datasets not being accepted as weights (#9)
+    3.0.2
     -- Fix icon not showing in toolbar (#7)
     -- Fix help not showing (#8)
     3.0.1
