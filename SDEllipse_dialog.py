@@ -353,8 +353,9 @@ class SDEllipseDialog(QDialog, FORM_CLASS):
                 attrdict = atr
             for id, attrib in attrdict.iteritems():
                 # Check for numeric attribute
-                if attrib.typeName().upper() in ('REAL', 'INTEGER', 'INT4',
-                                                 'INT8', 'FLOAT4'):
+                #if attrib.typeName().upper() in ('REAL', 'INTEGER', 'INT4',
+                #                                 'INT8', 'FLOAT4'):
+                if attrib.isNumeric():
                     self.inputField.addItem(attrib.name(), attrib.name())
             if (self.inputField.count() > 0):
                 if self.method == 1:
