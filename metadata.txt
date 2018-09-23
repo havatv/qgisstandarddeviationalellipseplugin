@@ -1,6 +1,6 @@
 [general]
 name=Standard Deviational Ellipse
-version=3.0.2
+version=3.0.3
 qgisMinimumVersion=2.99
 qgisMaximumVersion=3.98
 description=Create a standard deviational ellipse for a set of points
