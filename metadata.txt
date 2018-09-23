@@ -16,7 +16,7 @@ about=A standard deviational ellipse is produced according to two methods, with 
       A polygon vector layer with the standard deviational ellipse is produced, containing the attributes: meanx, meany, majorsd, minorsd, majorangle, directoind and eccentrici as explained in the documentation.  The majorangle is counter-clockwise relative to the first axis.
       An attribute for weighting can be selected.
       There are no external library dependencies.
-version=1.2.2
+version=1.2.3
 author=Håvard Tveite, NMBU
 email=havard.tveite@nmbu.no
 
@@ -24,7 +24,9 @@ email=havard.tveite@nmbu.no
 
 # Optional items:
 # Uncomment the following line and add your changelog:
-changelog=1.2.2
+changelog=1.2.3
+    -- Fixed issue with integer fields from Shapefile format datasets not being accepted as weights (#9)
+    1.2.2
     -- Close the SDE polygon to make it valid (#6)
     1.2.1
     -- Added a help button and removed double quotes from the output layer name
