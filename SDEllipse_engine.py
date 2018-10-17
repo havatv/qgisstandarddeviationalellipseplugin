@@ -108,7 +108,7 @@ class Worker(QtCore.QObject):
             # Get the features (iterator)
             if (inputlayer.selectedFeatureCount() > 0 and
                                           self.selectedfeaturesonly):
-                features = inputlayer.selectedFeaturesIterator()
+                features = inputlayer.getSelectedFeatures()
             else:
                 features = inputlayer.getFeatures()
             weight = 1.0
@@ -148,7 +148,7 @@ class Worker(QtCore.QObject):
             # Get the features (iterator)
             if (inputlayer.selectedFeatureCount() > 0 and
                                           self.selectedfeaturesonly):
-                features = inputlayer.selectedFeaturesIterator()
+                features = inputlayer.getSelectedFeatures()
             else:
                 features = inputlayer.getFeatures()
             # Find the ellipse angles
@@ -209,7 +209,7 @@ class Worker(QtCore.QObject):
             # Get the features (iterator)
             if (inputlayer.selectedFeatureCount() > 0 and
                                           self.selectedfeaturesonly):
-                features = inputlayer.selectedFeaturesIterator()
+                features = inputlayer.getSelectedFeatures()
             else:
                 features = inputlayer.getFeatures()
             # Find the SD - trouble!
