@@ -99,17 +99,21 @@ class SDEllipse:
             self.iface.addToolBarIcon(self.action)
         # Add menu item
         if hasattr(self.iface, 'addPluginToVectorMenu'):
-            self.iface.addPluginToVectorMenu(self.menuname, self.action)
+            #self.iface.addPluginToVectorMenu(self.menuname, self.action)
+            self.iface.addPluginToVectorMenu('', self.action)
         else:
-            self.iface.addPluginToMenu(self.menuname, self.action)
+            #self.iface.addPluginToMenu(self.menuname, self.action)
+            self.iface.addPluginToMenu('', self.action)
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         # Remove the plugin menu item
         if hasattr(self.iface, 'removePluginVectorMenu'):
-            self.iface.removePluginVectorMenu(self.menuname, self.action)
+            #self.iface.removePluginVectorMenu(self.menuname, self.action)
+            self.iface.removePluginVectorMenu('', self.action)
         else:
-            self.iface.removePluginMenu(self.menuname, self.action)
+            #self.iface.removePluginMenu(self.menuname, self.action)
+            self.iface.removePluginMenu('', self.action)
         # Remove the plugin toolbar icon
         if hasattr(self.iface, 'removeVectorToolBarIcon'):
             self.iface.removeVectorToolBarIcon(self.action)
