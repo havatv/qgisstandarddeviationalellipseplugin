@@ -23,7 +23,7 @@ Apparently, there are many definitions of a Standard
 Deviational Ellipse.
 CrimeStat implements a method that produces different results
 from the Yuill method, and this method is offered as an
-alternative.  This method is also implemented in the R aspace
+alternative.  This method is also implemented in the R `aspace`
 package.
    
 Functionality
@@ -34,62 +34,83 @@ Functionality
   distribution as a standard deviational ellipse.
 
 - Output is a polygon layer with the standard deviational
-  ellipse as the only feature.  The following attributes are
-  available for the layer / ellipse: meanx, meany, majorsd (SD along
-  the major axis), minorsd (SD along the minor axis that is normal
-  to the major axis), majorangle(rad) (major axis angle in radians
-  counter-clockwise relative to x/east), directiond(eg) ("compass"
-  direction - degrees clockwise relative to north) and eccentricity
-  (sqrt(1-b²/a²)).
+  ellipse as the only feature.
+  The following attributes are available in the output (SDE)
+  layer:
+
+  * `meanx`
+  * `meany`
+  * `majoranglerad` (major axis angle in radians
+    counter-clockwise relative to x/east)
+  * `directiondeg` ("compass" direction - degrees
+    clockwise relative to north)
+  * `majorsd` (SD along the major axis)
+  * `minorsd` (SD along the minor axis that is normal
+    to the major axis)
+  * `eccentricity` (sqrt(1-b²/a²)).
 
 Options
 =============
 
-- The user can choose between different methods
+The plugin GUI offers a number of options:
 
-  - Yuill (see introduction)
+|sde_gui|
 
-  - CrimeStat (as implemented in the R package aspace)
+.. |sde_gui| image:: illustrations/sde_gui.png
+ :align: middle
 
-- Specify if only selected features are to be used (but if
-  no features are selected, all features will be used)
+Choices:
 
-- Select an attribute for weighting (for Yuill's method).
+- For the Yuill method, a *Weight field* can be used
+  (if the layer has a numeric attribute).
 
-- For Yuill's method, it is possible to try a DOF (degrees
-  of freedom) correction and a sqrt(2) correction
+- *Selected features only* to be used (if no features are
+  selected, all features will be used)
+
+- Select method
+
+  - *Yuill* (see introduction)
+
+  - *CrimeStat* (as implemented in the R package aspace)
+
+- For the Yuill method, it is possible to use *DoF correction*
+  (DoF: Degrees of Freedom) and *sqrt(2) correction*
   (to make the standard deviational ellipse equal to the
   standard distance deviation when the distribution of points
   is random and even in all directions).
   With both of these corrections applied, the result will be
   the same as for the CrimeStat method.
 
+The suggested name for the output layer is:
+`SDE_<method>_<input_layer_name>`.
+But that can be modified.
+
 Implementation
 ================
 
 The calculations of the standard deviational ellipse parameters
-is performed in a separate thread.
-
+is performed in a separate thread that reports its progress
+through the progressbar in the GUI.
 
 Versions
 ===============
-The current version is 3.0.
+The current version is 3.0.5.
 
-- 3.0: Update to the QGIS 3.0 API.
-  UI rearranged.
-  Close the SDE polygon to make it valid.
-
-- 1.2.1: Added a help button and removed double quotes from the
+- 3.0.5: Eliminated the superfluous "Standard deviational ellipse"
+  submenu under the Vector menu. GUI and documentation fixes.
+- 3.0.4: Fixed issue with selected features in QGIS 3.
+- 3.0.3: Fixed issue with integer fields from Shapefile
+  format datasets not being accepted as weights.
+- 3.0.2: Make icon show in the toolbar and make help show
+- 3.0.1: SDE polygon closed to make it valid.
+- 3.0.0: Update to the QGIS 3.0 API. GUI rearranged.
+- 1.2.1: Help button added. Double quotes removed from the
   output layer name.
-
-- 1.2: Added "compass" direction (for the major axis) and
-  eccentricity.
-  Fixed DOF calculations.
-  User interface and robustness improvements.
-
-- 1.1: Added the CrimeStat option.
-  Added some more options and modified the user interface.
-
+- 1.2.0: "Compass" direction and eccentricity added (for the
+  major axis). Fixed DOF calculations. GUI and robustness
+  improvements.
+- 1.1: CrimeStat option added. More options added.
+  GUI modifications.
 - 1.0: First official version.
 
 
@@ -126,7 +147,7 @@ Bibtex:
     author =   {Håvard Tveite},
     title =    {The {QGIS} {Standard} {Deviational} {Ellipse} Plugin},
     howpublished = {\url{http://plugins.qgis.org/plugins/SDEllipse/}},
-    year = {2016--2018}
+    year = {2016--2020}
   }
 
 

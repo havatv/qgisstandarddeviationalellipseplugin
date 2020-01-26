@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>479</width>
-    <height>362</height>
+    <height>385</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -135,7 +135,7 @@
            <string>Correction for DF and sqrt(2)</string>
           </property>
           <property name="text">
-           <string notr="true">&quot;CrimeStat&quot;</string>
+           <string notr="true">CrimeStat</string>
           </property>
          </widget>
         </item>
@@ -155,7 +155,7 @@
         <item>
          <widget class="QCheckBox" name="crimestatcorr_cb">
           <property name="toolTip">
-           <string>Correct by multiplying by the square root of 2</string>
+           <string>&quot;Correct&quot; by multiplying by the square root of 2</string>
           </property>
           <property name="text">
            <string>sqrt(2) correction</string>
@@ -165,10 +165,10 @@
         <item>
          <widget class="QCheckBox" name="degfreedcorr_cb">
           <property name="toolTip">
-           <string>Correct using degrees of freedom (DF)</string>
+           <string>&quot;Correct&quot; using degrees of freedom (DoF)</string>
           </property>
           <property name="text">
-           <string>DF correction</string>
+           <string>DoF correction</string>
           </property>
          </widget>
         </item>

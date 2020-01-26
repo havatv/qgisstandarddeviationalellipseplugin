@@ -270,7 +270,7 @@ class Worker(QtCore.QObject):
             #     self.theta2 = atan(tantheta2)
             # self.status.emit('SD1: ' + str(self.SD1) + ' SD2: '
             #                  + str(self.SD2))
-        except:
+        except Exception as ex:
             import traceback
             self.error.emit(traceback.format_exc())
             self.finished.emit(False, None)
